@@ -56,7 +56,9 @@ namespace Books.Hub.Application.Services.Admin
             // 5. create new Book
             var result = await _bookRepository.AddAsync(dto.CreateBookDTOtoBook());     
 
-            return await GetByIdAsync(result.Id);
+            return result is null ?
+                null : 
+                await GetByIdAsync(result.Id);
         }
 
         public async Task<IEnumerable<BookDTO>> GetAllAsync() 

@@ -2,6 +2,7 @@
 using Books.Hub.Domain.Entities;
 using Books.Hub.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Query;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -24,14 +25,40 @@ namespace Books.Hub.Infrastructure.Repositories.Admin
             return await _context.Set<TEntity>().FindAsync(Id);
         }
 
-        public async Task<IEnumerable<TEntity>> GetAllAsync()
+        //public async Task<IEnumerable<TEntity>> GetAllAsync(params Expression<Func<TEntity, object>>[] includeExpressions)
+        //{
+        //    IQueryable<TEntity> query = _context.Set<TEntity>();
+
+        //    if (includeExpressions.Length > 0) 
+        //    {
+        //        foreach (var includeExpression in includeExpressions) 
+        //        {
+        //            query = query.Include(includeExpression);
+        //        }
+        //    }
+
+        //    return await query
+        //        .AsNoTracking()
+        //        .ToListAsync();
+        //}
+
+    public async Task<IEnumerable<TEntity>> GetAllAsync(
+        params Func<IQueryable<TEntity>, IIncludableQueryable<TEntity, object>>[] includeExpressions)
         {
-            return await _context.Set<TEntity>()
-                .AsNoTracking()
-                .ToListAsync();
+            IQueryable<TEntity> query = _context.Set<TEntity>();
+
+            if (includeExpressions.Length > 0) 
+            {
+                foreach (var includeExpression in includeExpressions)
+                {
+                    query = includeExpression(query);
+                }
+            }
+         
+            return await query.ToListAsync();
         }
 
-        public async Task<TEntity> AddAsync(TEntity model)
+    public async Task<TEntity> AddAsync(TEntity model)
         {
             _context.Set<TEntity>().Add(model);
             await _context.SaveChangesAsync();
@@ -44,9 +71,9 @@ namespace Books.Hub.Infrastructure.Repositories.Admin
             return await _context.SaveChangesAsync() > 0;
         }
 
-        public async Task<bool> DeleteAsync(TEntity author)
+        public async Task<bool> DeleteAsync(TEntity entity)
         {
-            _context.Set<TEntity>().Remove(author);
+            _context.Set<TEntity>().Remove(entity);
             return await _context.SaveChangesAsync() > 0;
         }
 

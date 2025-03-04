@@ -34,8 +34,8 @@ namespace Books.Hub.Api.Controllers.Admin
             return Ok(authors);
         }
 
-        [HttpGet("{id}", Name = "GetByIdAsync")]
-        public async Task<IActionResult> GetByIdAsync([FromRoute] int id)
+        [HttpGet("{id}", Name = "GetAuthorByIdAsync")]
+        public async Task<IActionResult> GetAuthorByIdAsync([FromRoute] int id)
         {
             var author = await _authorService.GetByIdAsync(id);
 
@@ -61,7 +61,7 @@ namespace Books.Hub.Api.Controllers.Admin
             if (addedAuthor == null)
                 return BadRequest("Author Not Added !!");
 
-            return CreatedAtRoute(nameof(GetByIdAsync), new { id = addedAuthor.Id }, addedAuthor);
+            return CreatedAtRoute(nameof(GetAuthorByIdAsync), new { id = addedAuthor.Id }, addedAuthor);
         }
 
         [HttpPost("edit")]

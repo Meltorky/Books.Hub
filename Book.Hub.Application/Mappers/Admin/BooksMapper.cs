@@ -34,6 +34,7 @@ namespace Books.Hub.Application.Mappers.Admin
         {
             return new BookDTO()
             {
+                Id = model.Id,
                 Name = model.Name,
                 Description = model.Description,
                 IsAvailable = model.IsAvailable,

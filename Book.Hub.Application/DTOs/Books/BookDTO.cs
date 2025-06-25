@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Books.Hub.Application.DTOs.Admin
+namespace Books.Hub.Application.DTOs.Books
 {
     public class BookDTO
     {

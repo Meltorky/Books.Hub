@@ -1,5 +1,5 @@
 ﻿using Books.Hub.Api.Validators;
-using Books.Hub.Application.DTOs.Admin;
+using Books.Hub.Application.DTOs.Authors;
 using Books.Hub.Application.Interfaces.IService.Admin;
 using Books.Hub.Application.Interfaces.IServices.Admin;
 using Books.Hub.Application.Options;
@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Options;
 
-namespace Books.Hub.Api.Controllers.Admin
+namespace Books.Hub.Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]

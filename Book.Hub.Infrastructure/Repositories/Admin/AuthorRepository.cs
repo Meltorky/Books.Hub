@@ -1,5 +1,4 @@
-﻿using Books.Hub.Application.DTOs.Admin;
-using Books.Hub.Application.Interfaces.IRepositories.Admin;
+﻿using Books.Hub.Application.Interfaces.IRepositories.Admin;
 using Books.Hub.Domain.Entities;
 using Books.Hub.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;

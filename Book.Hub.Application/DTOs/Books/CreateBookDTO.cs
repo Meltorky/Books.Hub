@@ -11,7 +11,7 @@ using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Swashbuckle.AspNetCore.Annotations;
 using System.Text.Json.Serialization;
 
-namespace Books.Hub.Application.DTOs.Admin
+namespace Books.Hub.Application.DTOs.Books
 {
     public class CreateBookDTO
     {

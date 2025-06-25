@@ -12,6 +12,7 @@ using Books.Hub.Infrastructure.Repositories.Admin;
 using Books.Hub.Application.Options;
 using Books.Hub.Application.Interfaces.IServices.Admin;
 using Books.Hub.Application.Services.Admin;
+using Books.Hub.Api.Middlewares;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -55,10 +56,8 @@ builder.Services.AddScoped<IBookRepository, BookRepository>();
 
 builder.Services.AddScoped<IBaseService,BaseService>();
 
-
 // Confiqurate Options
 builder.Services.Configure<ImagesOptions>(builder.Configuration.GetSection("ImageSettings"));
-
 
 builder.Services.AddSwaggerGen(options =>
 {
@@ -76,7 +75,7 @@ if (app.Environment.IsDevelopment())
 }
 
 // Seed Identity Default Roles and Users
-//await IdentitySeederExtention.IdentitySeeder(app.Services);
+await app.Services.IdentitySeeder();
 
 app.UseHttpsRedirection();
 

@@ -1,4 +1,4 @@
-﻿using Books.Hub.Application.DTOs.Admin;
+﻿using Books.Hub.Application.DTOs.Authors;
 using Books.Hub.Domain.Entities;
 using System;
 using System.Collections.Generic;

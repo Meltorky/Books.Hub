@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 
 
-namespace Books.Hub.Application.DTOs.Admin
+namespace Books.Hub.Application.DTOs.Authors
 {
     public class EditAuthorDTO
     {

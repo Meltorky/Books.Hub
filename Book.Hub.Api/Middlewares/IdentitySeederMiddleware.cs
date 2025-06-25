@@ -2,11 +2,11 @@
 using Books.Hub.Infrastructure.Seeds;
 using Microsoft.AspNetCore.Identity;
 
-namespace Books.Hub.Api.Extentions
+namespace Books.Hub.Api.Middlewares
 {
-    public static class IdentitySeederExtention
+    public static class IdentitySeederMiddleware
     {
-        public static async Task IdentitySeeder(IServiceProvider service)
+        public static async Task IdentitySeeder(this IServiceProvider service)
         {
             using var scope = service.CreateScope();
 

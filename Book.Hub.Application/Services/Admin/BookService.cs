@@ -1,4 +1,4 @@
-﻿using Books.Hub.Application.DTOs.Admin;
+﻿using Books.Hub.Application.DTOs.Books;
 using Books.Hub.Application.Interfaces.IRepositories.Admin;
 using Books.Hub.Application.Interfaces.IServices.Admin;
 using Books.Hub.Application.Mappers.Admin;

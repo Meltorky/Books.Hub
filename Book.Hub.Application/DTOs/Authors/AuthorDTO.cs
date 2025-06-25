@@ -10,7 +10,7 @@ using System.Text;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
-namespace Books.Hub.Application.DTOs.Admin
+namespace Books.Hub.Application.DTOs.Authors
 {
     public class AuthorDTO
     {

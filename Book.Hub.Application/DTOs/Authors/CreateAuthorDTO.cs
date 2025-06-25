@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Swashbuckle.AspNetCore.Annotations; // Add this line
 
-namespace Books.Hub.Application.DTOs.Admin
+namespace Books.Hub.Application.DTOs.Authors
 {
     public class CreateAuthorDTO
     {

@@ -25,7 +25,7 @@ namespace Books.Hub.Domain.Entities
         public bool HaveAccount { get; set; } = false;   // Is Author Have an Account in the Syetem
 
         // Navigation Properties
-
+        public ICollection<AuthorSubscriber> AuthorSubscribers { get; set; } = new Collection<AuthorSubscriber>();
         public ICollection<Book> Books { get; set; } = new Collection<Book>();
 
     }

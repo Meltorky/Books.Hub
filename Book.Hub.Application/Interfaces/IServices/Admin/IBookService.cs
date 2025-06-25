@@ -1,4 +1,4 @@
-﻿using Books.Hub.Application.DTOs.Admin;
+﻿using Books.Hub.Application.DTOs.Books;
 using System;
 using System.Collections.Generic;
 using System.Linq;

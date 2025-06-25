@@ -22,6 +22,7 @@ namespace Books.Hub.Infrastructure.Data
         public DbSet<Category> Categories { get; set; }
         public DbSet<Author> Authors { get; set; }
         public DbSet<BookCategory> BookCategories { get; set; }
+        public DbSet<AuthorSubscriber> AuthorSubscribers { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -35,7 +36,25 @@ namespace Books.Hub.Infrastructure.Data
             }
 
             modelBuilder.Entity<BookCategory>()
-            .HasKey(b => new { b.BookId, b.CategoryId });
+                .HasKey(b => new { b.BookId, b.CategoryId });
+
+
+            modelBuilder.Entity<AuthorSubscriber>()
+                .HasKey(b => new { b.AuthorId,b.SubscriberId });
+
+
+            modelBuilder.Entity<AuthorSubscriber>()
+                .HasOne(x => x.Author)
+                .WithMany(a => a.AuthorSubscribers)
+                .HasForeignKey(x => x.AuthorId)
+                .OnDelete(DeleteBehavior.Cascade); // removes only the join row
+
+
+            modelBuilder.Entity<AuthorSubscriber>()
+                .HasOne(x => x.Subscriber)
+                .WithMany(s => s.AuthorSubscribers)
+                .HasForeignKey(x => x.SubscriberId)
+                .OnDelete(DeleteBehavior.Cascade); // removes only the join row
 
 
             modelBuilder.Entity<Category>()

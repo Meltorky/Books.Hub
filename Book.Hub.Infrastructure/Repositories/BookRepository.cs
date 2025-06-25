@@ -1,4 +1,4 @@
-﻿using Books.Hub.Application.Interfaces.IRepositories.Admin;
+﻿using Books.Hub.Application.Interfaces.IRepositories;
 using Books.Hub.Domain.Entities;
 using Books.Hub.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
@@ -8,7 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Books.Hub.Infrastructure.Repositories.Admin
+namespace Books.Hub.Infrastructure.Repositories
 {
     public class BookRepository : BaseRepository<Book>, IBookRepository
     {

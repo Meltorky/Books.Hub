@@ -1,4 +1,4 @@
-﻿using Books.Hub.Application.Interfaces.IServices.Admin;
+﻿using Books.Hub.Application.Interfaces.IServices;
 using Books.Hub.Application.Options;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
@@ -8,7 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Books.Hub.Application.Services.Admin
+namespace Books.Hub.Application.Services
 {
     public class BaseService : IBaseService
     {

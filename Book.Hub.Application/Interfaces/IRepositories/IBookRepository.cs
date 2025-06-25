@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Books.Hub.Application.Interfaces.IRepositories.Admin
+namespace Books.Hub.Application.Interfaces.IRepositories
 {
     public interface IBookRepository : IBaseRepository<Book>
     {

@@ -1,6 +1,6 @@
 ﻿using Books.Hub.Api.Validators;
 using Books.Hub.Application.DTOs.Books;
-using Books.Hub.Application.Interfaces.IServices.Admin;
+using Books.Hub.Application.Interfaces.IServices;
 using Books.Hub.Application.Options;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;

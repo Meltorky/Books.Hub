@@ -1,5 +1,6 @@
 ﻿using Books.Hub.Application.DTOs.Auth;
 using Books.Hub.Application.Interfaces.IServices.Authentication;
+using Books.Hub.Domain.Constants;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Books.Hub.Api.Controllers
@@ -17,10 +18,8 @@ namespace Books.Hub.Api.Controllers
         [HttpPost("register")]
         public async Task<IActionResult> RegisterAsync([FromForm] RegisterDTO register) 
         {
-            if (!ModelState.IsValid)
-            {
+            if (!ModelState.IsValid || register.RoleName == Roles.Admin.ToString())
                 return BadRequest(ModelState);
-            }
 
             var result = await _authService.RegisterAsync(register);
 

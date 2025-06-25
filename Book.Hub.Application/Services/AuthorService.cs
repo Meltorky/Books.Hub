@@ -1,10 +1,8 @@
 ﻿using Books.Hub.Application.DTOs.Authors;
-using Books.Hub.Application.Interfaces.IRepositories.Admin;
-using Books.Hub.Application.Interfaces.IService.Admin;
-using Books.Hub.Application.Interfaces.IServices.Admin;
-using Books.Hub.Application.Mappers.Admin;
+using Books.Hub.Application.Interfaces.IRepositories;
+using Books.Hub.Application.Interfaces.IServices;
+using Books.Hub.Application.Mappers;
 using Books.Hub.Application.Options;
-using Books.Hub.Application.Services.Admin;
 using Books.Hub.Domain.Entities;
 using Microsoft.Extensions.Options;
 using System;
@@ -13,7 +11,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Books.Hub.Application.Service.Admin
+namespace Books.Hub.Application.Services
 {
     public class AuthorService : BaseService , IAuthorService
     {

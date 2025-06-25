@@ -7,7 +7,7 @@ using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Books.Hub.Application.Interfaces.IRepositories.Admin
+namespace Books.Hub.Application.Interfaces.IRepositories
 {
     public interface IBaseRepository<TEntity> where TEntity : class
     {

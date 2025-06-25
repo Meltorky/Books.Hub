@@ -1,18 +1,16 @@
 using Books.Hub.Api.Extentions;
 using Books.Hub.Application.Comman;
-using Books.Hub.Application.Interfaces.IService.Admin;
-using Books.Hub.Application.Interfaces.IServices.Authentication;
 using Books.Hub.Application.Services.Authentication;
 using Books.Hub.Infrastructure.Data;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Books.Hub.Application.Service.Admin;
-using Books.Hub.Application.Interfaces.IRepositories.Admin;
-using Books.Hub.Infrastructure.Repositories.Admin;
 using Books.Hub.Application.Options;
-using Books.Hub.Application.Interfaces.IServices.Admin;
-using Books.Hub.Application.Services.Admin;
 using Books.Hub.Api.Middlewares;
+using Books.Hub.Infrastructure.Repositories;
+using Books.Hub.Application.Interfaces.IServices.Authentication;
+using Books.Hub.Application.Interfaces.IRepositories;
+using Books.Hub.Application.Services;
+using Books.Hub.Application.Interfaces.IServices;
 
 var builder = WebApplication.CreateBuilder(args);
 

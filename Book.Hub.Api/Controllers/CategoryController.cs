@@ -1,5 +1,5 @@
 ﻿using Books.Hub.Application.DTOs.Categories;
-using Books.Hub.Application.Interfaces.IServices.Admin;
+using Books.Hub.Application.Interfaces.IServices;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 

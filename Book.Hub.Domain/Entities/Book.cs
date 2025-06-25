@@ -21,7 +21,7 @@ namespace Books.Hub.Domain.Entities
         public DateOnly PublishedDate { get; set; }
         public int PageCount { get; set; }
         public double Price { get; set; }
-        public bool IsAvailable { get; set; }
+        public bool IsAvailable { get; set; } = true;
         public int TotalCopiesSold { get; set; }
         public byte[]? BookCover { get; set; }
 

@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Books.Hub.Application.Mappers.Admin
+namespace Books.Hub.Application.Mappers
 {
     public static class BooksMapper
     {

@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Books.Hub.Application.Interfaces.IService.Admin
+namespace Books.Hub.Application.Interfaces.IServices
 {
     public interface IAuthorService
     {

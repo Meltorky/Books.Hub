@@ -1,7 +1,7 @@
 ﻿using Books.Hub.Application.DTOs.Books;
-using Books.Hub.Application.Interfaces.IRepositories.Admin;
-using Books.Hub.Application.Interfaces.IServices.Admin;
-using Books.Hub.Application.Mappers.Admin;
+using Books.Hub.Application.Interfaces.IRepositories;
+using Books.Hub.Application.Interfaces.IServices;
+using Books.Hub.Application.Mappers;
 using Books.Hub.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -10,7 +10,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Books.Hub.Application.Services.Admin
+namespace Books.Hub.Application.Services
 {
     public class BookService : BaseService , IBookService
     {

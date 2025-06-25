@@ -1,6 +1,6 @@
 ﻿using Books.Hub.Application.DTOs.Categories;
-using Books.Hub.Application.Interfaces.IRepositories.Admin;
-using Books.Hub.Application.Interfaces.IServices.Admin;
+using Books.Hub.Application.Interfaces.IRepositories;
+using Books.Hub.Application.Interfaces.IServices;
 using Books.Hub.Domain.Entities;
 using System;
 using System.Collections.Generic;
@@ -8,7 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Books.Hub.Application.Services.Admin
+namespace Books.Hub.Application.Services
 {
     public class CategoryService : BaseService, ICategoryService
     {

@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Books.Hub.Application.Interfaces.IServices.Admin
+namespace Books.Hub.Application.Interfaces.IServices
 {
     public interface IBaseService
     {

@@ -22,6 +22,7 @@ namespace Books.Hub.Infrastructure.Data
         public DbSet<Category> Categories { get; set; }
         public DbSet<Author> Authors { get; set; }
         public DbSet<BookCategory> BookCategories { get; set; }
+        public DbSet<UserBook> UserBooks { get; set; }
         public DbSet<AuthorSubscriber> AuthorSubscribers { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -35,13 +36,27 @@ namespace Books.Hub.Infrastructure.Data
                 forgienKey.DeleteBehavior = DeleteBehavior.Restrict;
             }
 
+
+
             modelBuilder.Entity<BookCategory>()
                 .HasKey(b => new { b.BookId, b.CategoryId });
+
+            modelBuilder.Entity<BookCategory>()
+                .HasOne(bc => bc.Book)
+                .WithMany(b => b.BookCategories)
+                .HasForeignKey(bc => bc.BookId)
+                .OnDelete(DeleteBehavior.Cascade); // Delete BookCategory links when Book is deleted
+
+            modelBuilder.Entity<BookCategory>()
+                .HasOne(bc => bc.Category)
+                .WithMany(c => c.BookCategories)
+                .HasForeignKey(bc => bc.CategoryId)
+                .OnDelete(DeleteBehavior.Cascade); // Delete BookCategory links when Category is deleted
+
 
 
             modelBuilder.Entity<AuthorSubscriber>()
                 .HasKey(b => new { b.AuthorId,b.SubscriberId });
-
 
             modelBuilder.Entity<AuthorSubscriber>()
                 .HasOne(x => x.Author)
@@ -49,12 +64,29 @@ namespace Books.Hub.Infrastructure.Data
                 .HasForeignKey(x => x.AuthorId)
                 .OnDelete(DeleteBehavior.Cascade); // removes only the join row
 
-
             modelBuilder.Entity<AuthorSubscriber>()
                 .HasOne(x => x.Subscriber)
                 .WithMany(s => s.AuthorSubscribers)
                 .HasForeignKey(x => x.SubscriberId)
                 .OnDelete(DeleteBehavior.Cascade); // removes only the join row
+
+
+
+            modelBuilder.Entity<UserBook>()
+                 .HasKey(b => new { b.BookId, b.UserId });
+
+            modelBuilder.Entity<UserBook>()
+                .HasOne(x => x.Book)
+                .WithMany(a => a.UserBooks)
+                .HasForeignKey(x => x.BookId)
+                .OnDelete(DeleteBehavior.Cascade); // removes only the join row
+
+            modelBuilder.Entity<UserBook>()
+                .HasOne(x => x.ApplicationUser)
+                .WithMany(s => s.UserBooks)
+                .HasForeignKey(x => x.UserId)
+                .OnDelete(DeleteBehavior.Cascade); // removes only the join row
+
 
 
             modelBuilder.Entity<Category>()

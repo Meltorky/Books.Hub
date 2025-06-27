@@ -55,7 +55,7 @@ namespace Books.Hub.Application.Services
             if (category is null)
                 return null;
 
-            GenericEditMethod(dto,category);
+            GenericMapDtoToEntity(dto,category);
 
             await _categoryRepository.EditAsync(category);
             return new CategoryDTO 

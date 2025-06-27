@@ -9,10 +9,10 @@ namespace Books.Hub.Application.Interfaces.IServices
 {
     public interface IBookService
     {
-        Task<BookDTO?> CreateBookAsync(CreateBookDTO dto);
-        Task<IEnumerable<BookDTO>> GetAllAsync();
-        Task<BookDTO?> GetByIdAsync(int Id);
-        Task<BookDTO?> EditAsync(EditBookDTO dto);
-        Task<bool> DeleteAsync(int Id);
+        Task<BookDTO> CreateBookAsync(CreateBookDTO dto, CancellationToken cancellationToken);
+        Task<IEnumerable<BookDTO>> GetAllAsync(CancellationToken cancellationToken);
+        Task<BookDTO> GetByIdAsync(int Id, CancellationToken cancellationToken);
+        Task<BookDTO> EditAsync(EditBookDTO dto, CancellationToken cancellationToken);
+        Task<bool> DeleteAsync(int Id, CancellationToken cancellationToken);
     }
 }

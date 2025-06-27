@@ -40,6 +40,8 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(o =>
 builder.Services.AddJwtAuthentication(builder.Configuration);
 
 // Inject System Services
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+
 builder.Services.AddScoped<IAuthService,AuthService>();
 builder.Services.AddScoped<ITokenService,TokenService>();
 
@@ -71,9 +73,11 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+// registering the Global Exception Handling Middleware.
+app.UseMiddleware<ExceptionHandlingMiddleware>();
 
 // Seed Identity Default Roles and Users
-await app.Services.IdentitySeeder();
+//await app.Services.IdentitySeeder();
 
 app.UseHttpsRedirection();
 

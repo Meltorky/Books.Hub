@@ -9,8 +9,8 @@ namespace Books.Hub.Application.Interfaces.IServices
 {
     public interface IBaseService
     {
-        void GenericEditMethod<TDto, TEntity>
-            (TDto dto, TEntity entity, string? dateOnlyPropertyName = null)
+        void GenericMapDtoToEntity<TDto, TEntity>
+            (TDto dto, TEntity entity)
             where TDto : class
             where TEntity : class;
 

@@ -32,6 +32,7 @@ namespace Books.Hub.Domain.Entities
         public Author Author { get; set; } = default!;
 
         public ICollection<BookCategory> BookCategories { get; set; } = new List<BookCategory>();
+        public ICollection<UserBook> UserBooks { get; set; } = new List<UserBook>();
 
     }
 }

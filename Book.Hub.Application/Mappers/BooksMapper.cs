@@ -1,5 +1,6 @@
 ﻿using Books.Hub.Application.DTOs.Books;
 using Books.Hub.Domain.Entities;
+using Books.Hub.Application.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,14 +17,13 @@ namespace Books.Hub.Application.Mappers
             {
                 Name = dto.Name,
                 Description = dto.Description,
-                IsAvailable = dto.IsAvailable,
                 Language = dto.Language,
                 PageCount = dto.PageCount,    
                 Price = dto.Price,
                 Rating = dto.Rating,
                 TotalCopiesSold = dto.TotalCopiesSold,
                 AuthorId = dto.AuthorId,
-                PublishedDate = DateOnly.Parse(dto.PublishedDate),
+                PublishedDate = dto.PublishedDate,
                 BookCover = dto.BookCover,
                 BookCategories = dto.BookCategoryIDs.Select(i => new BookCategory { CategoryId = i}).ToList()
             };

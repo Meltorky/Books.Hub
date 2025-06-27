@@ -55,7 +55,7 @@ namespace Books.Hub.Application.Services
             if (dto.AuthorImageFile is not null)
                 dto.AuthorImage = await HandleImageFiles(dto.AuthorImageFile);
 
-            GenericEditMethod(dto, author, nameof(dto.DateOfBrith));
+            GenericMapDtoToEntity(dto, author);
 
             await _authorRepository.EditAsync(author);
             return author.ToAuthorDTO();

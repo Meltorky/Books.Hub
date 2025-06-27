@@ -34,7 +34,7 @@ namespace Books.Hub.Application.DTOs.Books
         
         [JsonPropertyName("PublishedDate")]
         [SwaggerSchema(Description = "Enter the date in format yyyy-MM-dd")]
-        public string? PublishedDate { get; set; } = string.Empty;
+        public DateOnly? PublishedDate { get; set; }
 
         
         public int? PageCount { get; set; }

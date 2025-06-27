@@ -12,8 +12,7 @@ namespace Books.Hub.Application.Services
 {
     public class BaseService : IBaseService
     {
-        public void GenericEditMethod<TDto, TEntity>
-            (TDto dto, TEntity entity, string? dateOnlyPropertyName = null)
+        public void GenericMapDtoToEntity<TDto, TEntity>(TDto dto, TEntity entity)
             where TDto : class
             where TEntity : class
         {
@@ -22,32 +21,20 @@ namespace Books.Hub.Application.Services
 
             foreach (var dtoProperty in dtoProperties)
             {
-                if (dtoProperty.Name == "Id") // Skip Id updates
-                    continue;
+                // Skip Id updates
+                if (dtoProperty.Name == "Id") continue;
 
                 var newValue = dtoProperty.GetValue(dto);
-                if (newValue == null)
-                    continue; // Skip null values
+                
+                // Skip null values
+                if (newValue == null) continue; 
 
-                if (entityProperties.TryGetValue(dtoProperty.Name, out var entityProperty))
-                {
-                    // Handle DateOnly conversion (if applicable)
-                    if (!string.IsNullOrEmpty(dateOnlyPropertyName) &&
-                        dtoProperty.Name == dateOnlyPropertyName &&
-                        entityProperty.PropertyType == typeof(DateOnly))
-                    {
-                        if (DateOnly.TryParse(newValue.ToString(), out var parsedDate))
-                        {
-                            newValue = parsedDate;
-                        }
-                        else
-                        {
-                            continue; // Skip if invalid date format
-                        }
-                    }
-
-                    entityProperty.SetValue(entity, newValue);
-                }
+                // Try to get the matching property in the entity by name
+                if (!entityProperties.TryGetValue(dtoProperty.Name, out var entityProp)) 
+                    continue;
+                
+                // set the entity's property to the DTO's non-null value
+                entityProp.SetValue(entity, newValue);               
             }
         }
 
@@ -57,5 +44,47 @@ namespace Books.Hub.Application.Services
             await file.CopyToAsync(stream);
             return stream.ToArray();
         }
+
+
+        //public void GenericEditMethodv0<TDto, TEntity>(TDto dto, TEntity entity)
+        //    where TDto : class
+        //    where TEntity : class
+        //{
+        //    var dtoProperties = typeof(TDto).GetProperties();
+        //    var entityProperties = typeof(TEntity).GetProperties().ToDictionary(p => p.Name, p => p);
+
+        //    foreach (var dtoProperty in dtoProperties)
+        //    {
+        //        if (dtoProperty.Name == "Id") // Skip Id updates
+        //            continue;
+
+        //        var newValue = dtoProperty.GetValue(dto);
+        //        if (newValue == null)
+        //            continue; // Skip null values
+
+        //        // Try to get the matching property in the entity by name
+        //        if (!entityProperties.TryGetValue(dtoProperty.Name, out var entityProp)) continue;
+
+        //        // Special handling: If the target entity property is of type DateOnly
+        //        if (entityProp.PropertyType == typeof(DateOnly))
+        //        {
+        //            // If the DTO value is a string, try to parse it to DateOnly
+        //            if (newValue is string str && DateOnly.TryParse(str, out var dateOnly))
+        //            {
+        //                entityProp.SetValue(entity, dateOnly); // Assign parsed DateOnly
+        //            }
+        //            // If the DTO value is already a DateTime, convert it to DateOnly
+        //            else if (newValue is DateTime dt)
+        //            {
+        //                entityProp.SetValue(entity, DateOnly.FromDateTime(dt));
+        //            }
+
+        //            continue; // Skip remaining logic for this property (already set it)
+        //        }
+        //        // Default case: set the entity's property to the DTO's non-null value
+        //        entityProp.SetValue(entity, newValue);
+
+        //    }
+        //}
     }
 }

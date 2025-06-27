@@ -20,42 +20,45 @@ namespace Books.Hub.Api.Controllers
             _options = options;
         }
 
+
         [HttpGet("all")]
-        public async Task<IActionResult> GetAllAsync() 
+        public async Task<IActionResult> GetAllAsync(CancellationToken cancellationToken) 
         {
-            return Ok(await _bookService.GetAllAsync());
+            return Ok(await _bookService.GetAllAsync(cancellationToken));
         }
 
-        [HttpGet("{id}", Name = "GetBookByIdAsync")]
-        public async Task<IActionResult> GetBookByIdAsync([FromRoute] int id) 
+
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetBookByIdAsync([FromRoute] int id, CancellationToken cancellationToken) 
         {
-            var book = await _bookService.GetByIdAsync(id);
-            return book is null ? 
-                NotFound($"No Book Exist With ID: {id}") :
-                Ok(book);
+            return Ok(await _bookService.GetByIdAsync(id, cancellationToken));
         }
 
 
         [HttpPost("add")]
-        public async Task<IActionResult> CreateAsync([FromForm] CreateBookDTO dto) 
+        public async Task<IActionResult> CreateAsync([FromForm] CreateBookDTO dto , CancellationToken cancellationToken) 
         {
             if(!ModelState.IsValid)
                 return BadRequest(ModelState);
 
+            // Validate the uploaded image
             if (dto.BookCoverFile is not null && !ImagesValidator.UploadedImagesValidator(dto.BookCoverFile!, _options.Value))
             {
                 return BadRequest($"Only Accept |{_options.Value.AllowedExtentions.Replace(',', '|')}| with {_options.Value.MaxSizeAllowedInBytes / 1024 / 1024} MB");
             }
-            var result = await _bookService.CreateBookAsync(dto);
 
-            return result is null ? 
-                BadRequest("Book Does Not Added !!") :
-                Ok(result);
+            // Service throws ArgumentException or others on validation errors -> Global middleware handles them
+            var created = await _bookService.CreateBookAsync(dto, cancellationToken);
+
+            return CreatedAtAction(
+                nameof(GetBookByIdAsync),      // action
+                new { id = created.Id },       // route values
+                created);                      // response body
         }
 
 
         [HttpPost("edit")]
-        public async Task<IActionResult> EditAsync(EditBookDTO dto) 
+        public async Task<IActionResult> EditAsync(EditBookDTO dto, CancellationToken cancellationToken) 
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
@@ -65,23 +68,17 @@ namespace Books.Hub.Api.Controllers
                 return BadRequest($"Only Accept |{_options.Value.AllowedExtentions.Replace(',', '|')}| with {_options.Value.MaxSizeAllowedInBytes / 1024 / 1024} MB");
             }
 
-            var editedBook = await _bookService.EditAsync(dto);
+            var editedBook = await _bookService.EditAsync(dto, cancellationToken);
 
-            return editedBook is null ?
-                NotFound($"No Book Exist with ID: {dto.Id} !!!") :
-                Ok(editedBook);
+            return Ok(editedBook);
         }
 
-        [HttpDelete("delete/{Id}")]
-        public async Task<IActionResult> DeletetAsync([FromRoute] int Id) 
+
+        [HttpDelete("delete/{id}")]
+        public async Task<IActionResult> DeletetAsync([FromRoute] int id, CancellationToken cancellationToken) 
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
-            return await _bookService.DeleteAsync(Id) ?
-                Ok("Book Succssfully Deleted !!") :
-                NotFound($"No Book Exist with ID: {Id} !!");
+            await _bookService.DeleteAsync(id, cancellationToken);
+            return NoContent();
         }
-
     }
 }

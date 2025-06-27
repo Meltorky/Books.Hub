@@ -21,5 +21,6 @@ namespace Books.Hub.Application.Comman
 
         // Nav
         public ICollection<AuthorSubscriber> AuthorSubscribers { get; set; } = new Collection<AuthorSubscriber>();
+        public ICollection<UserBook> UserBooks { get; set; } = new Collection<UserBook>();
     }
 }

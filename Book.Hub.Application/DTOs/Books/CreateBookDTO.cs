@@ -1,11 +1,4 @@
-﻿using Books.Hub.Domain.Entities;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Swashbuckle.AspNetCore.Annotations;
@@ -32,18 +25,15 @@ namespace Books.Hub.Application.DTOs.Books
         public double Rating { get; set; }
 
         [Required]
-        [JsonPropertyName("PublishedDate")]
+        [JsonPropertyName("Published Date")]
         [SwaggerSchema(Description = "Enter the date in format yyyy-MM-dd")]
-        public string PublishedDate { get; set; } = string.Empty;
+        public DateOnly PublishedDate { get; set; }
 
         [Required]
         public int PageCount { get; set; }
 
         [Required]
         public double Price { get; set; }
-
-        [Required]
-        public bool IsAvailable { get; set; }
 
         [Required]
         public int TotalCopiesSold { get; set; }

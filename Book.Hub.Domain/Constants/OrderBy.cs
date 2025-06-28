@@ -6,10 +6,9 @@ using System.Threading.Tasks;
 
 namespace Books.Hub.Domain.Constants
 {
-    public enum Roles
+    public class OrderBy
     {
-        Admin,
-        Author,
-        Subscriber,
+        public const string Ascending = "ASC";
+        public const string Descending = "DESC";
     }
 }

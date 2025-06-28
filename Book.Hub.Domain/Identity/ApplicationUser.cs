@@ -9,7 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Books.Hub.Application.Comman
+namespace Books.Hub.Application.Identity
 {
     public class ApplicationUser : IdentityUser
     {

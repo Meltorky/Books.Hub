@@ -26,8 +26,10 @@ namespace Books.Hub.Api.Controllers
         {
             return Ok(await _bookService.GetAllAsync(cancellationToken));
         }
-
-
+        /// <summary>
+        /// Retrieves a list of all products.
+        /// </summary>
+        /// <response code="200">Returns the list of products.</response>
         [HttpGet("{id}")]
         public async Task<IActionResult> GetBookByIdAsync([FromRoute] int id, CancellationToken cancellationToken) 
         {
@@ -73,8 +75,8 @@ namespace Books.Hub.Api.Controllers
             return Ok(editedBook);
         }
 
-
         [HttpDelete("delete/{id}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
         public async Task<IActionResult> DeletetAsync([FromRoute] int id, CancellationToken cancellationToken) 
         {
             await _bookService.DeleteAsync(id, cancellationToken);

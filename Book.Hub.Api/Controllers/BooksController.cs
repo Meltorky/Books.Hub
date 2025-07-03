@@ -1,7 +1,10 @@
-﻿using Books.Hub.Api.Validators;
+﻿using System.ComponentModel.DataAnnotations;
+using Books.Hub.Api.Validators;
 using Books.Hub.Application.DTOs.Books;
 using Books.Hub.Application.Interfaces.IServices;
 using Books.Hub.Application.Options;
+using Books.Hub.Domain.Common;
+using Books.Hub.Domain.Entities;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
@@ -21,22 +24,166 @@ namespace Books.Hub.Api.Controllers
         }
 
 
-        [HttpGet("all")]
-        public async Task<IActionResult> GetAllAsync(CancellationToken cancellationToken) 
-        {
-            return Ok(await _bookService.GetAllAsync(cancellationToken));
-        }
+
         /// <summary>
-        /// Retrieves a list of all products.
+        /// Get all books with full details (admin dashboard)
         /// </summary>
-        /// <response code="200">Returns the list of products.</response>
+        [HttpGet("full-details")]
+        public async Task<IActionResult> GetFullDetails(CancellationToken token)
+        {
+            var spec = new QuerySpecification<Book>();
+            spec.AddInclude(b => b.Author);
+            spec.AddInclude(b => b.Author.Books);
+            spec.AddInclude(b => b.BookCategories);
+            spec.AddInclude(b => b.BookCategories.Select(bc => bc.Category));
+
+            var books = await _bookService.GetAllAsync(spec, token);
+            return Ok(books);
+        }
+
+
+
+        /// <summary>
+        /// Search books by title with pagination (catalog page)
+        /// </summary>
+        [HttpGet("search")]
+        public async Task<IActionResult> SearchBooks(
+            CancellationToken token,
+            [FromQuery] string query,
+            [FromQuery][Range(1, int.MaxValue, ErrorMessage = "Page must be greater than 0")] int page = 1,
+            [FromQuery][Range(1, 100, ErrorMessage = "Page size must be between 1 and 100")] int pageSize = 10)
+        {
+            var spec = new QuerySpecification<Book>();
+            spec.AddCriteria(b => b.Name.Contains(query));
+            spec.Skip = (page - 1) * pageSize;
+            spec.Take = pageSize;
+            spec.OrderBy = b => b.Name;
+
+            var books = await _bookService.GetAllAsync(spec, token);
+            return Ok(books);
+        }
+
+
+
+        /// <summary>
+        /// Get books by category (sort: name/date/price) (category page) 
+        /// </summary>
+        [HttpGet("category/{categoryId}")]
+        public async Task<IActionResult> GetByCategory(
+            int categoryId,
+            CancellationToken token,
+            [FromQuery] string sort = "name",
+            [FromQuery] bool desc = false)
+        {
+            var spec = new QuerySpecification<Book>();
+            spec.AddCriteria(b => b.BookCategories.Any(bc => bc.CategoryId == categoryId));
+            spec.AddInclude(b => b.Author);
+
+            // Dynamic sorting
+            spec.OrderBy = sort switch
+            {
+                "price" => b => b.Price,
+                "date" => b => b.PublishedDate,
+                _ => b => b.Name
+            };
+            spec.OrderByDescending = desc;
+
+            var books = await _bookService.GetAllAsync(spec, token);
+            return Ok(books);
+        }
+
+
+
+        /// <summary>
+        /// Scenario 4: Get featured books (home page)
+        /// </summary>
+        [HttpGet("featured")]
+        public async Task<IActionResult> GetFeaturedBooks(CancellationToken token)
+        {
+            var spec = new QuerySpecification<Book>();
+            spec.AddCriteria(b => b.TotalCopiesSold > 0);
+            spec.Take = 10;
+            spec.OrderBy = b => b.Rating;
+            spec.OrderByDescending = true;
+            spec.AddInclude(b => b.Author);
+
+            var books = await _bookService.GetAllAsync(spec, token);
+            return Ok(books);
+        }
+
+
+
+        /// <summary>
+        /// Get book details with related data (product detail page)
+        /// </summary>
+        [HttpGet("{id}/details")]
+        public async Task<IActionResult> GetBookDetails(int id, CancellationToken token)
+        {
+            var spec = new QuerySpecification<Book>();
+            spec.AddInclude(b => b.Author);
+            spec.AddInclude(b => b.Author.Books);
+            spec.AddInclude(b => b.BookCategories);
+            spec.AddInclude(b => b.BookCategories.Select(bc => bc.Category));
+
+            var book = await _bookService.GetByIdAsync(id, spec, token);
+            return book != null ? Ok(book) : NotFound();
+        }
+
+
+
+        /// <summary>
+        /// Get books by multiple filters (advanced search)
+        /// </summary>
+        [HttpGet("advanced")]
+        public async Task<IActionResult> AdvancedSearch(
+            [FromQuery] string? name,
+            [FromQuery] int? authorId,
+            [FromQuery] double? minPrice,
+            [FromQuery] double? maxPrice,
+            [FromQuery][Range(1, 10, ErrorMessage = "Page must be between 1 - 10")] double? minRating,
+            CancellationToken token)
+        {
+            var spec = new QuerySpecification<Book>();
+
+            if (!string.IsNullOrEmpty(name))
+                spec.AddCriteria(b => b.Name.Contains(name));
+
+            if (authorId.HasValue)
+                spec.AddCriteria(b => b.AuthorId == authorId.Value);
+
+            if (minPrice.HasValue)
+                spec.AddCriteria(b => b.Price >= minPrice.Value);
+
+            if (maxPrice.HasValue)
+                spec.AddCriteria(b => b.Price <= maxPrice.Value);
+
+            if (minRating.HasValue)
+                spec.AddCriteria(b => b.Rating >= minRating.Value);
+
+            spec.AddInclude(b => b.Author);
+            spec.OrderBy = b => b.Name;
+
+            var books = await _bookService.GetAllAsync(spec, token);
+            return Ok(books);
+        }
+
+
+
+        /// <summary>
+        /// Returns Book without includes
+        /// </summary>
+        /// <response code="200">Returns Book without includes.</response>
         [HttpGet("{id}")]
         public async Task<IActionResult> GetBookByIdAsync([FromRoute] int id, CancellationToken cancellationToken) 
         {
-            return Ok(await _bookService.GetByIdAsync(id, cancellationToken));
+            return Ok(await _bookService.GetByIdAsync(id, null ,cancellationToken));
         }
 
 
+
+        /// <summary>
+        /// create book
+        /// </summary>
         [HttpPost("add")]
         public async Task<IActionResult> CreateAsync([FromForm] CreateBookDTO dto , CancellationToken cancellationToken) 
         {
@@ -59,6 +206,10 @@ namespace Books.Hub.Api.Controllers
         }
 
 
+
+        /// <summary>
+        /// Edit book with Id
+        /// </summary>
         [HttpPost("edit")]
         public async Task<IActionResult> EditAsync(EditBookDTO dto, CancellationToken cancellationToken) 
         {
@@ -75,6 +226,11 @@ namespace Books.Hub.Api.Controllers
             return Ok(editedBook);
         }
 
+
+
+        /// <summary>
+        /// Delete Book With Id
+        /// </summary>
         [HttpDelete("delete/{id}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         public async Task<IActionResult> DeletetAsync([FromRoute] int id, CancellationToken cancellationToken) 

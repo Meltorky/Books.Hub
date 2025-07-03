@@ -1,5 +1,6 @@
-﻿using Books.Hub.Domain.Constants;
-using Books.Hub.Application.Comman;
+﻿using Books.Hub.Application.Identity;
+using Books.Hub.Domain.Constants;
+using Books.Hub.Domain.Enums;
 using Microsoft.AspNetCore.Identity;
 
 namespace Books.Hub.Infrastructure.Seeds

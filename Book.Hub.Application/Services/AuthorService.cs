@@ -21,55 +21,80 @@ namespace Books.Hub.Application.Services
             _authorRepository = authorRepository;
         }
 
-
-        public async Task<IEnumerable<AuthorDTO>> GetAllAsync()
+        public Task<AuthorDTO?> AddAsync(CreateAuthorDTO dto)
         {
-            var authors = await _authorRepository.GetAllAsync();
-            return authors.Select(a => a.ToAuthorDTO());
+            throw new NotImplementedException();
         }
 
-        public async Task<AuthorDTO?> GetByIdAsync(int Id)
+        public Task<bool> DeleteAsync(int Id)
         {
-            var author = await _authorRepository.GetByIdAsync(Id);
-
-            return author is null ? null : author.ToAuthorDTO();
+            throw new NotImplementedException();
         }
 
-        public async Task<AuthorDTO?> AddAsync(CreateAuthorDTO dto)
+        public Task<AuthorDTO?> EditAsync(EditAuthorDTO dto)
         {
-            byte[]? authorImage = null; 
-
-            if (dto.AuthorImageFile is not null)
-                dto.AuthorImage = await HandleImageFiles(dto.AuthorImageFile);
-
-            var author = await _authorRepository.AddAsync(dto.CreateAuthorDTOToAuthor(authorImage));
-            return author is null ? null : author.ToAuthorDTO();
+            throw new NotImplementedException();
         }
 
-        public async Task<AuthorDTO?> EditAsync(EditAuthorDTO dto)
+        public Task<IEnumerable<AuthorDTO>> GetAllAsync()
         {
-            var author = await _authorRepository.GetByIdAsync(dto.Id);
-            if (author == null)
-                return null; // Author not found, return null
+            throw new NotImplementedException();
+        }
 
-            if (dto.AuthorImageFile is not null)
-                dto.AuthorImage = await HandleImageFiles(dto.AuthorImageFile);
-
-            GenericMapDtoToEntity(dto, author);
-
-            await _authorRepository.EditAsync(author);
-            return author.ToAuthorDTO();
+        public Task<AuthorDTO?> GetByIdAsync(int Id)
+        {
+            throw new NotImplementedException();
         }
 
 
-        public async Task<bool> DeleteAsync(int Id) 
-        {
-            var author = await _authorRepository.GetByIdAsync(Id);
-            if(author is not null && await _authorRepository.DeleteAsync(author))
-                return true;
+        //public async Task<IEnumerable<AuthorDTO>> GetAllAsync()
+        //{
+        //    var authors = await _authorRepository.GetAllAsync();
+        //    return authors.Select(a => a.ToAuthorDTO());
+        //}
 
-            return false;
-        }
+        //public async Task<AuthorDTO?> GetByIdAsync(int Id)
+        //{
+        //    var author = await _authorRepository.GetByIdAsync(Id);
+
+        //    return author is null ? null : author.ToAuthorDTO();
+        //}
+
+        //public async Task<AuthorDTO?> AddAsync(CreateAuthorDTO dto)
+        //{
+        //    byte[]? authorImage = null; 
+
+        //    if (dto.AuthorImageFile is not null)
+        //        dto.AuthorImage = await HandleImageFiles(dto.AuthorImageFile);
+
+        //    var author = await _authorRepository.AddAsync(dto.CreateAuthorDTOToAuthor(authorImage));
+        //    return author is null ? null : author.ToAuthorDTO();
+        //}
+
+        //public async Task<AuthorDTO?> EditAsync(EditAuthorDTO dto)
+        //{
+        //    var author = await _authorRepository.GetByIdAsync(dto.Id);
+        //    if (author == null)
+        //        return null; // Author not found, return null
+
+        //    if (dto.AuthorImageFile is not null)
+        //        dto.AuthorImage = await HandleImageFiles(dto.AuthorImageFile);
+
+        //    GenericMapDtoToEntity(dto, author);
+
+        //    await _authorRepository.EditAsync(author);
+        //    return author.ToAuthorDTO();
+        //}
+
+
+        //public async Task<bool> DeleteAsync(int Id) 
+        //{
+        //    var author = await _authorRepository.GetByIdAsync(Id);
+        //    if(author is not null && await _authorRepository.DeleteAsync(author))
+        //        return true;
+
+        //    return false;
+        //}
 
     }
 }

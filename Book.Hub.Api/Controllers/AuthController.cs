@@ -1,6 +1,7 @@
 ﻿using Books.Hub.Application.DTOs.Auth;
 using Books.Hub.Application.Interfaces.IServices.Authentication;
 using Books.Hub.Domain.Constants;
+using Books.Hub.Domain.Enums;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Books.Hub.Api.Controllers

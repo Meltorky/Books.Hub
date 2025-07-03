@@ -1,5 +1,7 @@
-﻿using Books.Hub.Domain.Constants;
+﻿using Books.Hub.Domain.Common;
+using Books.Hub.Domain.Constants;
 using Books.Hub.Domain.Entities;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Query;
 using System;
 using System.Collections.Generic;
@@ -14,12 +16,15 @@ namespace Books.Hub.Application.Interfaces.IRepositories
     {
         Task<TEntity?> GetById(int Id, CancellationToken token);
 
-        Task<TEntity?> GetById(int Id, CancellationToken token, params Expression<Func<TEntity, object>>[] includeExpressions);
+        Task<TEntity?> GetByIdAsync(int id, QuerySpecification<TEntity>? spec, CancellationToken token);
 
-        Task<TEntity?> FindSingleByCriteria(Expression<Func<TEntity, bool>> criteria, CancellationToken token, params Expression<Func<TEntity, object>>[] includeExpressions);
-        
         Task<IEnumerable<TEntity>> GetRange(List<int> ids, CancellationToken token, params Expression<Func<TEntity, object>>[] includeExpressions);
 
+
+        // Dynamic method that replace the 8 overloads below.
+        Task<IEnumerable<TEntity>> GetAll
+            (QuerySpecification<TEntity> spec, CancellationToken token);
+        
 
         // get all with includes
         Task<IEnumerable<TEntity>> GetAll
@@ -28,7 +33,7 @@ namespace Books.Hub.Application.Interfaces.IRepositories
 
         // get all with pagination then add includes
         Task<IEnumerable<TEntity>> GetAll
-            (int Skip, int Take, CancellationToken token, params Expression<Func<TEntity, object>>[] includeExpressions);
+            (CancellationToken token, int Skip, int Take, params Expression<Func<TEntity, object>>[] includeExpressions);
 
 
         // get all by criteria and add includes
@@ -40,7 +45,7 @@ namespace Books.Hub.Application.Interfaces.IRepositories
         Task<IEnumerable<TEntity>> GetAll
             (Expression<Func<TEntity, bool>> criteria, int Skip, int Take, CancellationToken token, params Expression<Func<TEntity, object>>[] includeExpressions);
 
-       
+
         // get all with sorting and add includes
         Task<IEnumerable<TEntity>> GetAll
             (Expression<Func<TEntity, object>> OrderBy, bool IsDesc, CancellationToken token, params Expression<Func<TEntity, object>>[] includeExpressions);

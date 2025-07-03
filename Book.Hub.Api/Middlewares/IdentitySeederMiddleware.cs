@@ -1,4 +1,4 @@
-﻿using Books.Hub.Application.Comman;
+﻿using Books.Hub.Application.Identity;
 using Books.Hub.Infrastructure.Seeds;
 using Microsoft.AspNetCore.Identity;
 

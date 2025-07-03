@@ -1,4 +1,5 @@
 ﻿using Books.Hub.Application.Interfaces.IRepositories;
+using Books.Hub.Domain.Common;
 using Books.Hub.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
@@ -15,36 +16,28 @@ namespace Books.Hub.Infrastructure.Repositories
         }
 
 
+        // without includs
         public async Task<TEntity?> GetById(int Id, CancellationToken token) 
         {
             return await _context.Set<TEntity>().FindAsync(Id,token);
         }
 
 
-        public async Task<TEntity?> GetById(int Id
-            , CancellationToken token, params Expression<Func<TEntity, object>>[] includeExpressions)
+
+        // with includes
+        public async Task<TEntity?> GetByIdAsync(int id, QuerySpecification<TEntity>? spec, CancellationToken token)
         {
             IQueryable<TEntity> query = _context.Set<TEntity>();
 
-            if (includeExpressions.Any())
-                foreach (var includeExpression in includeExpressions)
-                    query.Include(includeExpression);
+            if (spec is not null)
+                foreach (var include in spec.Includes)
+                    query = query.Include(include);
 
-            return await query.FirstOrDefaultAsync(e => EF.Property<int>(e,"Id") == Id,token);
+            return await query
+                .AsNoTracking()
+                .FirstOrDefaultAsync(e => EF.Property<int>(e, "Id") == id, token);
         }
 
-
-        public async Task<TEntity?> FindSingleByCriteria(Expression<Func<TEntity, bool>> criteria
-            , CancellationToken token, params Expression<Func<TEntity, object>>[] includeExpressions)
-        {
-            IQueryable<TEntity> query = _context.Set<TEntity>();
-
-            if (includeExpressions.Any())
-                foreach (var includeExpression in includeExpressions)
-                    query.Include(includeExpression);
-
-            return await query.SingleOrDefaultAsync(criteria,token);     
-        }
 
 
         public async Task<IEnumerable<TEntity>> GetRange(List<int> ids
@@ -64,6 +57,40 @@ namespace Books.Hub.Infrastructure.Repositories
         }
 
 
+
+        // Dynamic method that replace the 8 overloads below.
+        public async Task<IEnumerable<TEntity>> GetAll(QuerySpecification<TEntity> spec,CancellationToken token)
+        {
+            IQueryable<TEntity> query = _context.Set<TEntity>();
+
+            // Apply filtering
+            foreach (var criteria in spec.Criteria)
+                query = query.Where(criteria);
+
+            // Apply sorting
+            if (spec.OrderBy != null)
+            {
+                query = spec.OrderByDescending == true
+                    ? query.OrderByDescending(spec.OrderBy)
+                    : query.OrderBy(spec.OrderBy);
+            }
+
+            // Apply pagination
+            if (spec.Skip.HasValue)
+                query = query.Skip(spec.Skip.Value);
+
+            if (spec.Take.HasValue)
+                query = query.Take(spec.Take.Value);
+
+            // Apply includes
+            foreach (var include in spec.Includes)
+                query = query.Include(include);
+
+            return await query.AsNoTracking().ToListAsync(token);
+        }
+
+
+
         // get all with includes
         public async Task<IEnumerable<TEntity>> GetAll(
             CancellationToken token, params Expression<Func<TEntity, object>>[] includeExpressions)
@@ -79,8 +106,8 @@ namespace Books.Hub.Infrastructure.Repositories
 
 
         // get all with pagination and add includes
-        public async Task<IEnumerable<TEntity>> GetAll(int Skip, int Take
-            , CancellationToken token, params Expression<Func<TEntity, object>>[] includeExpressions)
+        public async Task<IEnumerable<TEntity>> GetAll(CancellationToken token, int Skip = 0, int Take = 10
+            , params Expression<Func<TEntity, object>>[] includeExpressions)
         {
             IQueryable<TEntity> query = _context.Set<TEntity>()
                 .Skip(Skip)

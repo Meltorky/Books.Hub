@@ -1,4 +1,5 @@
 ﻿using Books.Hub.Domain.Constants;
+using Books.Hub.Domain.Enums;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 

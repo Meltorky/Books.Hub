@@ -1,18 +1,3 @@
-using Books.Hub.Api.Extentions;
-using Books.Hub.Application.Comman;
-using Books.Hub.Application.Services.Authentication;
-using Books.Hub.Infrastructure.Data;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
-using Books.Hub.Application.Options;
-using Books.Hub.Api.Middlewares;
-using Books.Hub.Infrastructure.Repositories;
-using Books.Hub.Application.Interfaces.IServices.Authentication;
-using Books.Hub.Application.Interfaces.IRepositories;
-using Books.Hub.Application.Services;
-using Books.Hub.Application.Interfaces.IServices;
-using System.Reflection;
-
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.

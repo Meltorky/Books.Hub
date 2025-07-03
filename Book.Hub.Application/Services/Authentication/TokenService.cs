@@ -1,5 +1,5 @@
-﻿using Books.Hub.Application.Comman;
-using Books.Hub.Application.DTOs.Auth;
+﻿using Books.Hub.Application.DTOs.Auth;
+using Books.Hub.Application.Identity;
 using Books.Hub.Application.Interfaces.IServices.Authentication;
 using Books.Hub.Appliction.Options;
 using Microsoft.AspNetCore.Identity;

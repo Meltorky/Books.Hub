@@ -1,0 +1,14 @@
+﻿global using Books.Hub.Api.Extentions;
+global using Books.Hub.Application.Services.Authentication;
+global using Books.Hub.Infrastructure.Data;
+global using Microsoft.AspNetCore.Identity;
+global using Microsoft.EntityFrameworkCore;
+global using Books.Hub.Application.Options;
+global using Books.Hub.Api.Middlewares;
+global using Books.Hub.Infrastructure.Repositories;
+global using Books.Hub.Application.Interfaces.IServices.Authentication;
+global using Books.Hub.Application.Interfaces.IRepositories;
+global using Books.Hub.Application.Services;
+global using Books.Hub.Application.Interfaces.IServices;
+global using System.Reflection;
+global using Books.Hub.Application.Identity;

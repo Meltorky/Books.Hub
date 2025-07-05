@@ -27,10 +27,6 @@ namespace Books.Hub.Application.DTOs.Authors
         [MaxLength(300)]
         public string Bio { get; set; } = string.Empty;
         
-        
-        [Required]
-        public bool IsActive { get; set; }
-
 
         public IFormFile? AuthorImageFile { get; set; }
 
@@ -44,6 +40,6 @@ namespace Books.Hub.Application.DTOs.Authors
         [Required]
         [JsonPropertyName("Date Of Brith")]
         [SwaggerSchema(Description = "Enter the date in format yyyy-MM-dd")]
-        public string DateOfBrith { get; set; } = string.Empty;
+        public DateOnly DateOfBrith { get; set; }
     }
 }

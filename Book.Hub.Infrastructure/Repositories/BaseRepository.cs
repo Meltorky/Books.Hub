@@ -1,5 +1,6 @@
 ﻿using Books.Hub.Application.Interfaces.IRepositories;
 using Books.Hub.Domain.Common;
+using Books.Hub.Domain.Entities;
 using Books.Hub.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
@@ -16,35 +17,38 @@ namespace Books.Hub.Infrastructure.Repositories
         }
 
 
-        // without includs
-        public async Task<TEntity?> GetById(int Id, CancellationToken token) 
+
+
+        // Get specific Entity with Id foe edit and Delete
+        public async Task<TEntity?> GetById(int id, CancellationToken token)
         {
-            return await _context.Set<TEntity>().FindAsync(Id,token);
+            return await _context.Set<TEntity>().FindAsync(id);
         }
 
 
 
-        // with includes
-        public async Task<TEntity?> GetByIdAsync(int id, QuerySpecification<TEntity>? spec, CancellationToken token)
+        // Get specific Entity with Id
+        public async Task<TEntity?> GetById(int id, QuerySpecification<TEntity>? spec, CancellationToken token)
         {
             IQueryable<TEntity> query = _context.Set<TEntity>();
 
             if (spec is not null)
-                foreach (var include in spec.Includes)
-                    query = query.Include(include);
+                foreach (var include in spec.IncludeExpressions)
+                    query = include(query);
 
             return await query
                 .AsNoTracking()
-                .FirstOrDefaultAsync(e => EF.Property<int>(e, "Id") == id, token);
+                .SingleOrDefaultAsync(e => EF.Property<int>(e, "Id") == id, token);
         }
 
 
 
-        public async Task<IEnumerable<TEntity>> GetRange(List<int> ids
+        // get range and return List of TEntity
+        public async Task<List<TEntity>> GetRange(List<int> ids
             , CancellationToken token, params Expression<Func<TEntity, object>>[] includeExpressions)
         {
             if (ids == null || !ids.Any())
-                return Enumerable.Empty<TEntity>();
+                return Enumerable.Empty<TEntity>().ToList();
 
             IQueryable<TEntity> query = _context.Set<TEntity>()
                 .Where(e => ids.Contains(EF.Property<int>(e, "Id")));
@@ -54,6 +58,19 @@ namespace Books.Hub.Infrastructure.Repositories
                 query = query.Include(include);
 
             return await query.ToListAsync(token);
+        }
+
+
+        // get range and return List of ids VVV
+        public async Task<List<int>> GetExistingIdsRange(IEnumerable<int> ids,CancellationToken token)
+        {
+            if (ids == null || !ids.Any())
+                return new List<int>();
+
+            return await _context.Set<TEntity>()
+                .Where(e => ids.Contains(EF.Property<int>(e,"Id")))
+                .Select(e => EF.Property<int>(e, "Id"))
+                .ToListAsync(token);
         }
 
 
@@ -83,15 +100,18 @@ namespace Books.Hub.Infrastructure.Repositories
                 query = query.Take(spec.Take.Value);
 
             // Apply includes
-            foreach (var include in spec.Includes)
-                query = query.Include(include);
+            //foreach (var include in spec.Includes)
+            //    query = query.Include(include);
+            // 👇 Apply .Include().ThenInclude() chains
+            foreach (var include in spec.IncludeExpressions)
+                query = include(query);
 
             return await query.AsNoTracking().ToListAsync(token);
         }
 
 
 
-        // get all with includes
+        // get all with includes VVV
         public async Task<IEnumerable<TEntity>> GetAll(
             CancellationToken token, params Expression<Func<TEntity, object>>[] includeExpressions)
         {
@@ -103,6 +123,7 @@ namespace Books.Hub.Infrastructure.Repositories
 
             return await query.ToListAsync(token);
         }
+
 
 
         // get all with pagination and add includes
@@ -121,6 +142,7 @@ namespace Books.Hub.Infrastructure.Repositories
         }
 
 
+
         // get all by criteria and add includes
         public async Task<IEnumerable<TEntity>> GetAll(Expression<Func<TEntity, bool>> criteria
             , CancellationToken token, params Expression<Func<TEntity, object>>[] includeExpressions)
@@ -134,6 +156,7 @@ namespace Books.Hub.Infrastructure.Repositories
 
             return await query.ToListAsync(token);
         }
+
 
 
         // get all by criteria, pagination and add includes
@@ -151,6 +174,7 @@ namespace Books.Hub.Infrastructure.Repositories
 
             return await query.ToListAsync(token);
         }
+
 
 
         // get all with sorting and add includes
@@ -173,6 +197,7 @@ namespace Books.Hub.Infrastructure.Repositories
         }
 
 
+
         // get all by criteria then sorting and add includes
         public async Task<IEnumerable<TEntity>> GetAll
             (Expression<Func<TEntity, bool>> criteria, Expression<Func<TEntity, object>> OrderBy, bool IsDesc, CancellationToken token, params Expression<Func<TEntity, object>>[] includeExpressions)
@@ -191,6 +216,7 @@ namespace Books.Hub.Infrastructure.Repositories
 
             return await query.ToListAsync(token);
         }
+
 
 
         // get all with pagination then add sorting and add includes
@@ -214,6 +240,7 @@ namespace Books.Hub.Infrastructure.Repositories
 
             return await query.ToListAsync(token);
         }
+
 
 
         // get all by criteria, pagination then add sorting and add includes
@@ -241,12 +268,14 @@ namespace Books.Hub.Infrastructure.Repositories
         }
 
 
+
         public async Task<TEntity> AddAsync(TEntity model, CancellationToken token)
         {
             _context.Set<TEntity>().Add(model);
             await _context.SaveChangesAsync(token);
             return model;
         }
+
 
 
         public async Task<bool> EditAsync(TEntity model, CancellationToken token)
@@ -256,11 +285,21 @@ namespace Books.Hub.Infrastructure.Repositories
         }
 
 
+
         public async Task<bool> DeleteAsync(TEntity entity, CancellationToken token)
         {
             _context.Set<TEntity>().Remove(entity);
             return await _context.SaveChangesAsync(token) > 0;
         }
+
+
+
+        public async Task RemoveRange(ICollection<TEntity> entities)
+        {
+            _context.Set<TEntity>().RemoveRange(entities);
+            await _context.SaveChangesAsync();
+        }
+
 
 
         public async Task<bool> IsExitAsync(Expression<Func<TEntity, bool>> predicate, CancellationToken token)

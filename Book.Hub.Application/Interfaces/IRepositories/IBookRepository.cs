@@ -9,8 +9,7 @@ namespace Books.Hub.Application.Interfaces.IRepositories
 {
     public interface IBookRepository : IBaseRepository<Book>
     {
-        Task<Book?> GetBookByIdAsync(int Id);
         Task RemoveBookCategories(ICollection<BookCategory> bookCategories);
-        Task RemoveBookCategories(Book book);
+        //Task RemoveBookCategories(Book book);
     }
 }

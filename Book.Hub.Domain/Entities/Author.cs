@@ -16,13 +16,16 @@ namespace Books.Hub.Domain.Entities
         [MaxLength(300)]
         public string Bio { get; set; } = string.Empty ;
 
-        public bool IsActive { get; set; }    // Is This Author still write Books ?
+        public bool IsActive { get; set; } = false;    // Is This Author still write Books ?
 
         public DateOnly DateOfBrith { get; set; }
 
         public byte[]? AuthorImage { get; set; }
 
         public bool HaveAccount { get; set; } = false;   // Is Author Have an Account in the Syetem
+
+        public string? ApplicationAuthorId { get; set; }
+
 
         // Navigation Properties
         public ICollection<AuthorSubscriber> AuthorSubscribers { get; set; } = new Collection<AuthorSubscriber>();

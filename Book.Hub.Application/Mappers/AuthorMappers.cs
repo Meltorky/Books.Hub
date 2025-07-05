@@ -17,10 +17,11 @@ namespace Books.Hub.Application.Mappers
                 Id = model.Id,
                 Name = model.Name,
                 Bio = model.Bio,
-                DateOfBrith = model.DateOfBrith.ToString("yyyy-MM-dd"),
+                DateOfBrith = model.DateOfBrith,
                 IsActive = model.IsActive,
                 Nationality = model.Nationality,
                 AuthorImage = model.AuthorImage?.Take(50).ToArray(),  // .Take(50) => this is just for simplification while production, Not used in the real cases
+                Books = model.Books.Select(x => x.ToBookDTO()).ToList()
             };
         }
 
@@ -31,22 +32,9 @@ namespace Books.Hub.Application.Mappers
                 Id = dto.Id,
                 Name = dto.Name,
                 Bio = dto.Bio,
-                DateOfBrith = DateOnly.Parse(dto.DateOfBrith),
+                DateOfBrith = dto.DateOfBrith,
                 IsActive = dto.IsActive,
                 Nationality = dto.Nationality,
-            };
-        }
-
-        public static Author CreateAuthorDTOToAuthor(this CreateAuthorDTO dto , byte[]? authorImage = null)
-        {
-            return new Author
-            {
-                Name = dto.Name,
-                Bio = dto.Bio,
-                DateOfBrith = DateOnly.Parse(dto.DateOfBrith),
-                IsActive = dto.IsActive,
-                Nationality = dto.Nationality,
-                AuthorImage = authorImage ?? null
             };
         }
 

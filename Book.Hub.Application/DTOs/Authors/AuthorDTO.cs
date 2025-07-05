@@ -1,4 +1,5 @@
-﻿using Books.Hub.Domain.Entities;
+﻿using Books.Hub.Application.DTOs.Books;
+using Books.Hub.Domain.Entities;
 using Microsoft.AspNetCore.Http;
 using Swashbuckle.AspNetCore.Annotations;
 using System;
@@ -40,6 +41,10 @@ namespace Books.Hub.Application.DTOs.Authors
         [Required]
         [JsonPropertyName("Date Of Brith")]
         [SwaggerSchema(Description = "Enter the date in format yyyy-MM-dd")]
-        public string DateOfBrith { get; set; } = string.Empty;
+        public DateOnly DateOfBrith { get; set; }
+
+        public string? ApplicationAuthorId { get; set; }
+
+        public List<BookDTO> Books { get; set; } = new List<BookDTO>();
     }
 }

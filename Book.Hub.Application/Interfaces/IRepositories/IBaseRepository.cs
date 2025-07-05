@@ -14,12 +14,17 @@ namespace Books.Hub.Application.Interfaces.IRepositories
 {
     public interface IBaseRepository<TEntity> where TEntity : class
     {
-        Task<TEntity?> GetById(int Id, CancellationToken token);
+        Task<TEntity?> GetById(int id, CancellationToken token);
 
-        Task<TEntity?> GetByIdAsync(int id, QuerySpecification<TEntity>? spec, CancellationToken token);
+        Task<TEntity?> GetById(int id, QuerySpecification<TEntity>? spec, CancellationToken token);
 
-        Task<IEnumerable<TEntity>> GetRange(List<int> ids, CancellationToken token, params Expression<Func<TEntity, object>>[] includeExpressions);
 
+        // get range and return List of TEntity
+        Task<List<TEntity>> GetRange(List<int> ids, CancellationToken token, params Expression<Func<TEntity, object>>[] includeExpressions);
+
+        // get range and return List of ids
+        Task<List<int>> GetExistingIdsRange(IEnumerable<int> ids, CancellationToken token);
+        
 
         // Dynamic method that replace the 8 overloads below.
         Task<IEnumerable<TEntity>> GetAll
@@ -71,6 +76,8 @@ namespace Books.Hub.Application.Interfaces.IRepositories
         Task<bool> EditAsync(TEntity entity, CancellationToken token);
 
         Task<bool> DeleteAsync(TEntity entity, CancellationToken token);
+
+        Task RemoveRange(ICollection<TEntity> entities);
 
         Task<bool> IsExitAsync(Expression<Func<TEntity, bool>> predicate, CancellationToken token);
     }

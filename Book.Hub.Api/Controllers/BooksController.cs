@@ -32,10 +32,13 @@ namespace Books.Hub.Api.Controllers
         public async Task<IActionResult> GetFullDetails(CancellationToken token)
         {
             var spec = new QuerySpecification<Book>();
-            spec.AddInclude(b => b.Author);
-            spec.AddInclude(b => b.Author.Books);
-            spec.AddInclude(b => b.BookCategories);
-            spec.AddInclude(b => b.BookCategories.Select(bc => bc.Category));
+
+            spec.AddInclude(q => q
+                .Include(b => b.Author));
+
+            spec.AddInclude(q => q
+                .Include(b => b.BookCategories)
+                .ThenInclude(bc => bc.Category));
 
             var books = await _bookService.GetAllAsync(spec, token);
             return Ok(books);
@@ -77,7 +80,7 @@ namespace Books.Hub.Api.Controllers
         {
             var spec = new QuerySpecification<Book>();
             spec.AddCriteria(b => b.BookCategories.Any(bc => bc.CategoryId == categoryId));
-            spec.AddInclude(b => b.Author);
+            spec.AddInclude(b => b.Include(a => a.Author));
 
             // Dynamic sorting
             spec.OrderBy = sort switch
@@ -105,7 +108,7 @@ namespace Books.Hub.Api.Controllers
             spec.Take = 10;
             spec.OrderBy = b => b.Rating;
             spec.OrderByDescending = true;
-            spec.AddInclude(b => b.Author);
+            spec.AddInclude(b => b.Include(a => a.Author));
 
             var books = await _bookService.GetAllAsync(spec, token);
             return Ok(books);
@@ -120,10 +123,16 @@ namespace Books.Hub.Api.Controllers
         public async Task<IActionResult> GetBookDetails(int id, CancellationToken token)
         {
             var spec = new QuerySpecification<Book>();
-            spec.AddInclude(b => b.Author);
-            spec.AddInclude(b => b.Author.Books);
-            spec.AddInclude(b => b.BookCategories);
-            spec.AddInclude(b => b.BookCategories.Select(bc => bc.Category));
+
+            spec.AddInclude(q => q
+                .Include(b => b.BookCategories)
+                .ThenInclude(bc => bc.Category)
+            );
+
+            spec.AddInclude(q => q
+                .Include(b => b.Author)
+            );
+
 
             var book = await _bookService.GetByIdAsync(id, spec, token);
             return book != null ? Ok(book) : NotFound();
@@ -136,20 +145,18 @@ namespace Books.Hub.Api.Controllers
         /// </summary>
         [HttpGet("advanced")]
         public async Task<IActionResult> AdvancedSearch(
+            CancellationToken token,
             [FromQuery] string? name,
-            [FromQuery] int? authorId,
             [FromQuery] double? minPrice,
             [FromQuery] double? maxPrice,
             [FromQuery][Range(1, 10, ErrorMessage = "Page must be between 1 - 10")] double? minRating,
-            CancellationToken token)
+            [FromQuery] string? sort = "name",
+            [FromQuery] bool? desc = true)
         {
             var spec = new QuerySpecification<Book>();
 
             if (!string.IsNullOrEmpty(name))
                 spec.AddCriteria(b => b.Name.Contains(name));
-
-            if (authorId.HasValue)
-                spec.AddCriteria(b => b.AuthorId == authorId.Value);
 
             if (minPrice.HasValue)
                 spec.AddCriteria(b => b.Price >= minPrice.Value);
@@ -160,8 +167,15 @@ namespace Books.Hub.Api.Controllers
             if (minRating.HasValue)
                 spec.AddCriteria(b => b.Rating >= minRating.Value);
 
-            spec.AddInclude(b => b.Author);
-            spec.OrderBy = b => b.Name;
+
+            spec.AddInclude(b => b.Include(a => a.Author));
+            spec.OrderByDescending = desc ?? false;
+            spec.OrderBy = sort switch
+            {
+                "price" => b => b.Price,
+                "date" => b => b.PublishedDate,
+                _ => b => b.Name
+            };
 
             var books = await _bookService.GetAllAsync(spec, token);
             return Ok(books);
@@ -185,7 +199,7 @@ namespace Books.Hub.Api.Controllers
         /// create book
         /// </summary>
         [HttpPost("add")]
-        public async Task<IActionResult> CreateAsync([FromForm] CreateBookDTO dto , CancellationToken cancellationToken) 
+        public async Task<IActionResult> CreateAuthorProfile([FromForm] CreateBookDTO dto , CancellationToken cancellationToken) 
         {
             if(!ModelState.IsValid)
                 return BadRequest(ModelState);
@@ -222,7 +236,6 @@ namespace Books.Hub.Api.Controllers
             }
 
             var editedBook = await _bookService.EditAsync(dto, cancellationToken);
-
             return Ok(editedBook);
         }
 

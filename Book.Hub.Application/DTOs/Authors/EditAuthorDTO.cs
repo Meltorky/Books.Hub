@@ -40,6 +40,6 @@ namespace Books.Hub.Application.DTOs.Authors
 
         [JsonPropertyName("Date Of Brith")]
         [SwaggerSchema(Description = "Enter the date in format yyyy-MM-dd")]
-        public string? DateOfBrith { get; set; }
+        public DateOnly? DateOfBrith { get; set; }
     }
 }

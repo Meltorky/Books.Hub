@@ -18,37 +18,28 @@ namespace Books.Hub.Infrastructure.Repositories
             _context = context;
         }
 
-        public async Task<Book?> GetBookByIdAsync(int Id)
-        {
-            var book = await _context.Books
-                .AsNoTracking()
-                .Include(a => a.Author)
-                .Include(b => b.BookCategories)
-                .ThenInclude(b => b.Category)
-                .FirstOrDefaultAsync(x => x.Id == Id);
 
-            return book;
-        }
-
-        // EF Does Not Track them, Used For Editing an existing Book
+        // EF Does Not Track them, Used For Editing an existing Book  VVV
         public async Task RemoveBookCategories(ICollection<BookCategory> bookCategories)
         {
             _context.BookCategories.RemoveRange(bookCategories);
             await _context.SaveChangesAsync();
         }
 
+
+
         // EF Core Tracks them, Used For Deleting an existing Book
-        public async Task RemoveBookCategories(Book book)
-        {
-            var relatedCategories = await _context.BookCategories
-                .Where(bc => bc.BookId == book.Id)
-                .ToListAsync(); // Ensure EF Core tracks them
+        //public async Task RemoveBookCategories(Book book)
+        //{
+        //    var relatedCategories = await _context.BookCategories
+        //        .Where(bc => bc.BookId == book.Id)
+        //        .ToListAsync(); // Ensure EF Core tracks them
 
-            if (relatedCategories.Any())
-                _context.BookCategories.RemoveRange(relatedCategories);
+        //    if (relatedCategories.Any())
+        //        _context.BookCategories.RemoveRange(relatedCategories);
 
-            await _context.SaveChangesAsync();
-        }
+        //    await _context.SaveChangesAsync();
+        //}
 
     }
 }

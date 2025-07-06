@@ -1,6 +1,4 @@
 ﻿using Books.Hub.Application.DTOs.Auth;
-using Books.Hub.Application.Interfaces.IServices.Authentication;
-using Books.Hub.Domain.Constants;
 using Books.Hub.Domain.Enums;
 using Microsoft.AspNetCore.Mvc;
 
@@ -15,6 +13,7 @@ namespace Books.Hub.Api.Controllers
         {
             _authService = authService;
         }
+
 
         [HttpPost("register")]
         public async Task<IActionResult> RegisterAsync([FromForm] RegisterDTO register) 
@@ -31,6 +30,7 @@ namespace Books.Hub.Api.Controllers
 
             return BadRequest(result.Message);
         }
+
 
         [HttpPost("login")]
         public async Task<IActionResult> LoginAsync([FromForm] LoginDTO login)

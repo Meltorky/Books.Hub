@@ -1,6 +1,8 @@
-﻿using Books.Hub.Application.DTOs.Categories;
+﻿using Books.Hub.Application.Common.Exceptions;
+using Books.Hub.Application.DTOs.Categories;
 using Books.Hub.Application.Interfaces.IRepositories;
 using Books.Hub.Application.Interfaces.IServices;
+using Books.Hub.Domain.Common;
 using Books.Hub.Domain.Entities;
 using System;
 using System.Collections.Generic;
@@ -12,92 +14,74 @@ namespace Books.Hub.Application.Services
 {
     public class CategoryService : BaseService, ICategoryService
     {
-        private readonly ICategoryRepository _categoryRepository;
-        public CategoryService(ICategoryRepository categoryRepository)
+        private readonly IUnitOfWork _unitOfWork;
+        public CategoryService(IUnitOfWork unitOfWork)
         {
-            _categoryRepository = categoryRepository;
+            _unitOfWork = unitOfWork;
         }
 
-        public Task<CategoryDTO> CreateAsync(CreateCategoryDTO dto)
+
+
+        public async Task<CategoryDTO> GetByIdAsync(int Id , CancellationToken token)
         {
-            throw new NotImplementedException();
+            var category = await _unitOfWork.Categories.GetById(Id , token);
+            return category is null ?
+                throw new NotFoundException($"Category with ID {Id} was not found.") :
+                new CategoryDTO 
+                {
+                    Id = Id,
+                    Name = category.Name,
+                };
         }
 
-        public Task<bool> DeleteAsync(int Id)
+
+
+        public async Task<IEnumerable<CategoryDTO>> GetAllAsync( QuerySpecification<Category> query, CancellationToken token)
         {
-            throw new NotImplementedException();
+            var categories = await _unitOfWork.Categories.GetAll(query, token);
+            return categories.Select(c => new CategoryDTO
+            {
+                Id = c.Id,
+                Name = c.Name
+            });
         }
 
-        public Task<CategoryDTO?> EditAsync(CategoryDTO dto)
+        
+
+        public async Task<CategoryDTO> CreateAsync(CreateCategoryDTO dto, CancellationToken token)
         {
-            throw new NotImplementedException();
+            var category = await _unitOfWork.Categories.AddAsync(new Category { Name = dto.Name } , token);
+            return new CategoryDTO
+            {
+                Id = category.Id,
+                Name = category.Name
+            };
         }
 
-        public Task<IEnumerable<CategoryDTO>> GetAllAsync()
+        public async Task<CategoryDTO> EditAsync(CategoryDTO dto ,CancellationToken token)
         {
-            throw new NotImplementedException();
+            var category = await _unitOfWork.Categories.GetById(dto.Id , token);
+
+            if (category is null)
+                throw new NotFoundException($"Category with ID {dto.Id} was not found.");
+
+            GenericMapDtoToEntity(dto, category);
+
+            await _unitOfWork.Categories.EditAsync(category ,token);
+            return dto;
         }
 
-        public Task<CategoryDTO?> GetByIdAsync(int Id)
+
+
+        public async Task<bool> DeleteAsync(int Id, CancellationToken token)
         {
-            throw new NotImplementedException();
+            var category = await _unitOfWork.Categories.GetById(Id, token);
+
+            if (category is null)
+                throw new NotFoundException($"Category with ID {Id} was not found.");
+            
+            return await _unitOfWork.Categories.DeleteAsync(category ,token);
         }
-
-        //public async Task<CategoryDTO?> GetByIdAsync(int Id)
-        //{
-        //    var category = await _categoryRepository.GetByIdAsync(Id);
-        //    return category is null ? null : new CategoryDTO
-        //    {
-        //        Id = Id,
-        //        Name = category.Name
-        //    };
-        //}
-
-        //public async Task<IEnumerable<CategoryDTO>> GetAllAsync() 
-        //{
-        //    var result = await _categoryRepository.GetAllAsync();
-        //    return result.Select(c => new CategoryDTO 
-        //    {
-        //        Id= c.Id,
-        //        Name = c.Name
-        //    });
-        //}
-
-        //public async Task<CategoryDTO> CreateAsync(CreateCategoryDTO dto)
-        //{
-        //    var category = await _categoryRepository.AddAsync(new Category { Name = dto.Name });
-        //    return new CategoryDTO
-        //    {
-        //        Id = category.Id,
-        //        Name = category.Name
-        //    };
-        //}
-
-        //public async Task<CategoryDTO?> EditAsync(CategoryDTO dto)
-        //{
-        //    var category = await _categoryRepository.GetByIdAsync(dto.Id);
-
-        //    if (category is null)
-        //        return null;
-
-        //    GenericMapDtoToEntity(dto,category);
-
-        //    await _categoryRepository.EditAsync(category);
-        //    return new CategoryDTO 
-        //    {
-        //        Id = category.Id,
-        //        Name = category.Name
-        //    };
-        //}
-
-
-        //public async Task<bool> DeleteAsync(int Id) 
-        //{
-        //    var category = await _categoryRepository.GetByIdAsync(Id);
-        //    return category is null? 
-        //        false : 
-        //        await _categoryRepository.DeleteAsync(category);
-        //}
 
     }
 }

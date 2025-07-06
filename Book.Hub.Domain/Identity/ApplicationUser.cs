@@ -19,6 +19,8 @@ namespace Books.Hub.Application.Identity
         [MaxLength(30)]
         public string LastName { get; set; } = string.Empty;
 
+        public List<int> FavouriteBooks { get; set; } = new List<int>();
+
         // Nav
         public ICollection<AuthorSubscriber> AuthorSubscribers { get; set; } = new Collection<AuthorSubscriber>();
         public ICollection<UserBook> UserBooks { get; set; } = new Collection<UserBook>();

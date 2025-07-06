@@ -62,7 +62,7 @@ namespace Books.Hub.Api.Controllers
             [FromQuery] bool desc = true)
         {
             var spec = new QuerySpecification<Author>();
-            spec.AddCriteria(a => a.Name == search);
+            spec.AddCriteria(a => a.Name.Contains(search));
             spec.Skip = (page-1) * pageSize;
             spec.Take = pageSize;
             spec.OrderByDescending = desc;
@@ -112,6 +112,7 @@ namespace Books.Hub.Api.Controllers
         /// Create Author profile (by Admin)
         /// </summary>
         [HttpPost("admin/create-profile")]
+        [ProducesResponseType(StatusCodes.Status201Created)]
         public async Task<IActionResult> CreateAuthorProfile([FromForm] CreateAuthorDTO dto, CancellationToken token)
         {
             if (!ModelState.IsValid)
@@ -141,6 +142,7 @@ namespace Books.Hub.Api.Controllers
         /// <param name="dto">The data transfer object containing the details for creating the author profile.</param>
         /// <param name="token">The cancellation token to cancel the operation.</param>
         [HttpPost("author/create-profile")]
+        [ProducesResponseType(StatusCodes.Status201Created)]
         public async Task<IActionResult> CreateAuthorProfile(
             [FromRoute] string id,
             [FromForm] CreateAuthorDTO dto,

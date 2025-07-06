@@ -1,4 +1,6 @@
 ﻿using Books.Hub.Application.DTOs.Categories;
+using Books.Hub.Domain.Common;
+using Books.Hub.Domain.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,10 +11,10 @@ namespace Books.Hub.Application.Interfaces.IServices
 {
     public interface ICategoryService
     {
-        Task<CategoryDTO?> GetByIdAsync(int Id);
-        Task<IEnumerable<CategoryDTO>> GetAllAsync();
-        Task<CategoryDTO> CreateAsync(CreateCategoryDTO dto);
-        Task<CategoryDTO?> EditAsync(CategoryDTO dto);
-        Task<bool> DeleteAsync(int Id);
+        Task<CategoryDTO> GetByIdAsync(int Id , CancellationToken token);
+        Task<IEnumerable<CategoryDTO>> GetAllAsync(QuerySpecification<Category> query, CancellationToken token);
+        Task<CategoryDTO> CreateAsync(CreateCategoryDTO dto , CancellationToken token);
+        Task<CategoryDTO> EditAsync(CategoryDTO dto , CancellationToken token);
+        Task<bool> DeleteAsync(int Id , CancellationToken token);
     }
 }

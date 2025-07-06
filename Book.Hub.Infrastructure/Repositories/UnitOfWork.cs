@@ -28,9 +28,16 @@ namespace Books.Hub.Infrastructure.Repositories
             Categories = categories;
         }
 
+        public async Task<int> SaveChangesAsync(CancellationToken cancellationToken)
+        {
+            return await _context.SaveChangesAsync(cancellationToken);
+        }
+
+
         public void Dispose()
         {
             _context.Dispose();
         }
+
     }
 }

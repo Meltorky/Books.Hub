@@ -12,5 +12,6 @@ namespace Books.Hub.Application.Interfaces.IRepositories
         IAuthorRepository Authors { get; }
         IBookRepository Books { get; }
         ICategoryRepository Categories { get; }
+        Task<int> SaveChangesAsync(CancellationToken cancellationToken);
     }
 }

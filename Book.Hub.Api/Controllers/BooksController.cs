@@ -69,7 +69,7 @@ namespace Books.Hub.Api.Controllers
 
 
         /// <summary>
-        /// Get books by category (sort: name/date/price) (category page) 
+        /// Get all books by category (sort: name/date/price) (category page) 
         /// </summary>
         [HttpGet("category/{categoryId}")]
         public async Task<IActionResult> GetByCategory(
@@ -199,6 +199,7 @@ namespace Books.Hub.Api.Controllers
         /// create book
         /// </summary>
         [HttpPost("add")]
+        [ProducesResponseType(StatusCodes.Status201Created)]
         public async Task<IActionResult> CreateAuthorProfile([FromForm] CreateBookDTO dto , CancellationToken cancellationToken) 
         {
             if(!ModelState.IsValid)

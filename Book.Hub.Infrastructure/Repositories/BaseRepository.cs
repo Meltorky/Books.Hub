@@ -99,10 +99,7 @@ namespace Books.Hub.Infrastructure.Repositories
             if (spec.Take.HasValue)
                 query = query.Take(spec.Take.Value);
 
-            // Apply includes
-            //foreach (var include in spec.Includes)
-            //    query = query.Include(include);
-            // 👇 Apply .Include().ThenInclude() chains
+            // Apply .Include().ThenInclude() chains
             foreach (var include in spec.IncludeExpressions)
                 query = include(query);
 

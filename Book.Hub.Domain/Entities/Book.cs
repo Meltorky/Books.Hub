@@ -33,6 +33,6 @@ namespace Books.Hub.Domain.Entities
 
         public ICollection<BookCategory> BookCategories { get; set; } = new List<BookCategory>();
         public ICollection<UserBook> UserBooks { get; set; } = new List<UserBook>();
-
+        public ICollection<BookReview> BookReviews { get; set; } = new List<BookReview>();
     }
 }

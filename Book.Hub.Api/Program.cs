@@ -11,6 +11,7 @@ builder.Services.AddSwaggerGen(c =>
     var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
     var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
     c.IncludeXmlComments(xmlPath);
+    c.EnableAnnotations();
 });
 
 
@@ -35,19 +36,22 @@ builder.Services.AddJwtAuthentication(builder.Configuration);
 // Inject System Services
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
-builder.Services.AddScoped<IAuthService,AuthService>();
-builder.Services.AddScoped<ITokenService,TokenService>();
+builder.Services.AddScoped<IBaseService, BaseService>();
 
-builder.Services.AddScoped<IAuthorService,AuthorService>();
-builder.Services.AddScoped<IAuthorRepository,AuthorRepository>();
+builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<ITokenService, TokenService>();
 
-builder.Services.AddScoped<ICategoryService,CategoryService>();
-builder.Services.AddScoped<ICategoryRepository,CategoryRepository>();
+builder.Services.AddScoped<IAuthorService, AuthorService>();
+builder.Services.AddScoped<IAuthorRepository, AuthorRepository>();
+
+builder.Services.AddScoped<ICategoryService, CategoryService>();
+builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 
 builder.Services.AddScoped<IBookService, BookService>();
 builder.Services.AddScoped<IBookRepository, BookRepository>();
 
-builder.Services.AddScoped<IBaseService,BaseService>();
+builder.Services.AddScoped<IReviewService, ReviewService>();
+builder.Services.AddScoped<IReviewRepository, ReviewRepository>();
 
 // Confiqurate Options
 builder.Services.Configure<ImagesOptions>(builder.Configuration.GetSection("ImageSettings"));

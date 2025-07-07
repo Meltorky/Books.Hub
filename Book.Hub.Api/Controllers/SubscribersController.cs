@@ -32,7 +32,8 @@ public class SubscribersController : ControllerBase
     /// Removes a user's subscription to an author.
     /// </summary>
     [HttpDelete("unsubscribe")]
-    public async Task<IActionResult> RemoveAuthorSubscription([FromQuery] string userId, 
+    public async Task<IActionResult> RemoveAuthorSubscription(
+        [FromQuery] string userId, 
         [FromQuery] int authorId, 
         CancellationToken token)
     {
@@ -46,7 +47,7 @@ public class SubscribersController : ControllerBase
     /// Gets all authors the user is subscribed to.
     /// </summary>
     [HttpGet("{userId}/authors")]
-    public async Task<IActionResult> GetSubscribedAuthors(string userId, CancellationToken token)
+    public async Task<IActionResult> GetSubscribedAuthors([FromRoute] string userId, CancellationToken token)
     {
         var authors = await _subscriberService.GetSubscribedAuthors(userId, token);
         return Ok(authors);
@@ -73,7 +74,7 @@ public class SubscribersController : ControllerBase
     /// Gets all books bought by the user.
     /// </summary>
     [HttpGet("{userId}/books")]
-    public async Task<IActionResult> GetBoughtBooks(string userId, CancellationToken token)
+    public async Task<IActionResult> GetBoughtBooks([FromRoute] string userId, CancellationToken token)
     {
         var books = await _subscriberService.GetBoughtBooks(userId, token);
         return Ok(books);
@@ -115,7 +116,7 @@ public class SubscribersController : ControllerBase
     /// Gets all favourite books of the user.
     /// </summary>
     [HttpGet("{userId}/favourites")]
-    public async Task<IActionResult> GetFavouriteBooks(string userId, CancellationToken token)
+    public async Task<IActionResult> GetFavouriteBooks([FromRoute] string userId, CancellationToken token)
     {
         var books = await _subscriberService.GetFavouriteBooks(userId, token);
         return Ok(books);

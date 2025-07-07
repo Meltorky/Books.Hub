@@ -33,7 +33,7 @@ namespace Books.Hub.Api.Controllers
 
 
         [HttpPost("login")]
-        public async Task<IActionResult> LoginAsync([FromForm] LoginDTO login)
+        public async Task<IActionResult> LoginAsync([FromBody] LoginDTO login)
         {
             if (!ModelState.IsValid)
             {

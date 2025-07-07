@@ -171,7 +171,7 @@ namespace Books.Hub.Api.Controllers
         /// <summary>
         /// edit Author Profile by Admin/Author
         /// </summary>
-        [HttpPost("edit")]
+        [HttpPut("edit")]
         public async Task<IActionResult> EditAuthorAsync([FromForm] EditAuthorDTO dto , CancellationToken token)
         {
             if (!ModelState.IsValid)

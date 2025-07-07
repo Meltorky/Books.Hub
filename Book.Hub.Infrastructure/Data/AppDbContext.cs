@@ -24,6 +24,7 @@ namespace Books.Hub.Infrastructure.Data
         public DbSet<BookCategory> BookCategories { get; set; }
         public DbSet<UserBook> UserBooks { get; set; }
         public DbSet<AuthorSubscriber> AuthorSubscribers { get; set; }
+        public DbSet<BookReview> BookReviews { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -86,6 +87,25 @@ namespace Books.Hub.Infrastructure.Data
                 .WithMany(s => s.UserBooks)
                 .HasForeignKey(x => x.UserId)
                 .OnDelete(DeleteBehavior.Cascade); // removes only the join row
+
+
+
+            modelBuilder.Entity<BookReview>()
+                .HasOne(r => r.User)
+                .WithMany(u => u.BookReviews)
+                .HasForeignKey(r => r.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<BookReview>()
+                .HasOne(r => r.Book)
+                .WithMany(b => b.BookReviews)
+                .HasForeignKey(r => r.BookId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // Prevent duplicate reviews per user-book pair
+            modelBuilder.Entity<BookReview>()
+                .HasIndex(r => new { r.UserId, r.BookId })
+                .IsUnique();
 
 
 

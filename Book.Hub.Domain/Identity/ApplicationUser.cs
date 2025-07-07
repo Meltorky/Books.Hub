@@ -24,5 +24,6 @@ namespace Books.Hub.Application.Identity
         // Nav
         public ICollection<AuthorSubscriber> AuthorSubscribers { get; set; } = new Collection<AuthorSubscriber>();
         public ICollection<UserBook> UserBooks { get; set; } = new Collection<UserBook>();
+        public ICollection<BookReview> BookReviews { get; set; } = new List<BookReview>();
     }
 }

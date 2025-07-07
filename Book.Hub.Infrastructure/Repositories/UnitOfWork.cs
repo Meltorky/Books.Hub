@@ -15,17 +15,20 @@ namespace Books.Hub.Infrastructure.Repositories
         public IAuthorRepository Authors { get; private set; }
         public IBookRepository Books { get; private set; }
         public ICategoryRepository Categories { get; private set; }
+        public IReviewRepository Reviews {get; private set;}
 
         public UnitOfWork(
             AppDbContext context,
             IBookRepository books,
             IAuthorRepository authors,
-            ICategoryRepository categories)
+            ICategoryRepository categories,
+            IReviewRepository reviews)
         {
             _context = context;
             Authors = authors;
             Books = books;
             Categories = categories;
+            Reviews = reviews;
         }
 
         public async Task<int> SaveChangesAsync(CancellationToken cancellationToken)

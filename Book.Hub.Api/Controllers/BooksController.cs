@@ -225,7 +225,7 @@ namespace Books.Hub.Api.Controllers
         /// <summary>
         /// Edit book with Id
         /// </summary>
-        [HttpPost("edit")]
+        [HttpPut("edit")]
         public async Task<IActionResult> EditAsync(EditBookDTO dto, CancellationToken cancellationToken) 
         {
             if (!ModelState.IsValid)

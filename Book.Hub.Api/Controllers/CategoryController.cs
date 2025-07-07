@@ -104,7 +104,7 @@ namespace Books.Hub.Api.Controllers
         /// <summary>
         /// edit category (by admin)
         /// </summary>
-        [HttpPost("edit")]
+        [HttpPut("edit")]
         public async Task<IActionResult> EditAsync([FromQuery] CategoryDTO dto , CancellationToken token)
         {
             if (!ModelState.IsValid)

@@ -1,4 +1,3 @@
-using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -53,12 +52,6 @@ builder.Services.AddScoped<IBaseService,BaseService>();
 // Confiqurate Options
 builder.Services.Configure<ImagesOptions>(builder.Configuration.GetSection("ImageSettings"));
 
-builder.Services.AddSwaggerGen(options =>
-{
-    options.EnableAnnotations(); // Required for SwaggerSchema to work
-});
-
-
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -66,7 +59,10 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
+    app.UseDeveloperExceptionPage(); // Enable developer exception page to surface issues clearly
 }
+
+
 // registering the Global Exception Handling Middleware.
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 

@@ -12,3 +12,5 @@ global using Books.Hub.Application.Services;
 global using Books.Hub.Application.Interfaces.IServices;
 global using System.Reflection;
 global using Books.Hub.Application.Identity;
+global using Books.Hub.Api.ActionFilters;
+global using Serilog;

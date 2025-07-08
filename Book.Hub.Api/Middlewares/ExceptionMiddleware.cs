@@ -17,31 +17,32 @@ namespace Books.Hub.Api.Middlewares
         {
             try
             {
-                await _next(context); // Run the next middleware
+                await _next(context);
             }
             catch (ArgumentException ex)
             {
+                _logger.LogWarning(ex, "Bad request: invalid argument. Path: {Path}", context.Request.Path);
                 context.Response.StatusCode = StatusCodes.Status400BadRequest;
                 await context.Response.WriteAsJsonAsync(new { error = ex.Message });
             }
             catch (NotFoundException ex)
             {
+                _logger.LogWarning(ex, "Resource not found. Path: {Path}", context.Request.Path);
                 context.Response.StatusCode = StatusCodes.Status404NotFound;
                 await context.Response.WriteAsJsonAsync(new { error = ex.Message });
             }
             catch (OperationCanceledException ex)
             {
-                _logger.LogError(ex, "Request was canceled.");
+                _logger.LogError(ex, "Request was canceled by client or server. Path: {Path}", context.Request.Path);
                 context.Response.StatusCode = StatusCodes.Status499ClientClosedRequest;
                 await context.Response.WriteAsJsonAsync(new { error = "Request was canceled." });
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Unhandled exception occurred.");
+                _logger.LogError(ex, "Unhandled exception occurred. Path: {Path}", context.Request.Path);
                 context.Response.StatusCode = StatusCodes.Status500InternalServerError;
                 await context.Response.WriteAsJsonAsync(new { error = "An unexpected error occurred." });
             }
         }
     }
-
 }

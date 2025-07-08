@@ -1,4 +1,3 @@
-
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -53,8 +52,19 @@ builder.Services.AddScoped<IBookRepository, BookRepository>();
 builder.Services.AddScoped<IReviewService, ReviewService>();
 builder.Services.AddScoped<IReviewRepository, ReviewRepository>();
 
+// Add Action Filter that calculate the time excution
+builder.Services.AddScoped<ExecutionTimeFilter>();
+
 // Confiqurate Options
 builder.Services.Configure<ImagesOptions>(builder.Configuration.GetSection("ImageSettings"));
+
+// Serilog Config
+Log.Logger = new
+LoggerConfiguration().ReadFrom.Configuration(builder.Configuration).CreateLogger();
+builder.Host.UseSerilog();
+
+// Replace default logging with Serilog
+builder.Host.UseSerilog();
 
 var app = builder.Build();
 
@@ -66,12 +76,16 @@ if (app.Environment.IsDevelopment())
     app.UseDeveloperExceptionPage(); // Enable developer exception page to surface issues clearly
 }
 
+app.UseSerilogRequestLogging();  // Logs HTTP requests automatically
 
 // registering the Global Exception Handling Middleware.
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 
-// Seed Identity Default Roles and Users
-//await app.Services.IdentitySeeder();
+// Logs how long the request took (in milliseconds) using the ILogger
+app.UseMiddleware<ProfilingMiddleware>();
+
+// Rate Limiting Middleware 
+app.UseMiddleware<RateLimitingMiddleware>();
 
 app.UseHttpsRedirection();
 
@@ -79,4 +93,8 @@ app.UseAuthorization();
 
 app.MapControllers();
 
+// Seed Identity Default Roles and Users
+await app.Services.SeedIdentityAsync();
+
 app.Run();
+

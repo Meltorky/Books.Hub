@@ -59,6 +59,7 @@ namespace Books.Hub.Api.Controllers
         public async Task<IActionResult> GetAllAsync(CancellationToken token)
         {
             var spec = new QuerySpecification<Category>();
+            spec.AddInclude(c => c.Include(x => x.BookCategories));
             spec.OrderBy = x => x.BookCategories.Count;
             spec.OrderByDescending = true;
 

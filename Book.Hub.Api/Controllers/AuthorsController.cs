@@ -36,6 +36,7 @@ namespace Books.Hub.Api.Controllers
             [FromQuery] bool desc = true)
         {
             var spec = new QuerySpecification<Author>();
+            spec.AddInclude(q => q.Include(a => a.Books));
             spec.OrderByDescending = desc;
             spec.OrderBy = sort switch 
             {
@@ -63,6 +64,8 @@ namespace Books.Hub.Api.Controllers
         {
             var spec = new QuerySpecification<Author>();
             spec.AddCriteria(a => a.Name.Contains(search));
+            spec.AddInclude(q => q.Include(a => a.AuthorSubscribers));
+            spec.AddInclude(q => q.Include(a => a.Books));
             spec.Skip = (page-1) * pageSize;
             spec.Take = pageSize;
             spec.OrderByDescending = desc;

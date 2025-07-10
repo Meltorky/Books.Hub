@@ -11,5 +11,7 @@ namespace Books.Hub.Application.Interfaces.IServices.Authentication
     {
         Task<RegisterResultDTO> RegisterAsync(RegisterDTO dto);
         Task<RegisterResultDTO> LoginAsync(LoginDTO dto);
+        Task<RegisterResultDTO> RefreshTokenAsyncHandler(string token);
+        Task<bool> RevokeTokenAsync(string token);
     }
 }

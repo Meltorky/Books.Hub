@@ -1,4 +1,5 @@
-﻿using Books.Hub.Domain.Entities;
+﻿using Books.Hub.Domain.Common;
+using Books.Hub.Domain.Entities;
 using Microsoft.AspNetCore.Identity;
 using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations;
@@ -14,6 +15,8 @@ namespace Books.Hub.Application.Identity
         public string LastName { get; set; } = string.Empty;
 
         public List<int> FavouriteBooks { get; set; } = new List<int>();
+
+        public List<RefreshToken>? RefreshTokens { get; set; }
 
         // Nav
         public ICollection<AuthorSubscriber> AuthorSubscribers { get; set; } = new Collection<AuthorSubscriber>();

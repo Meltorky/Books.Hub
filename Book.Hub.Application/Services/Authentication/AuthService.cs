@@ -1,13 +1,10 @@
-﻿using Books.Hub.Application.DTOs.Auth;
+﻿using System.Security.Cryptography;
+using Books.Hub.Application.DTOs.Auth;
 using Books.Hub.Application.Identity;
 using Books.Hub.Application.Interfaces.IServices.Authentication;
+using Books.Hub.Domain.Common;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.VisualBasic;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 
 namespace Books.Hub.Application.Services.Authentication
 {
@@ -104,5 +101,77 @@ namespace Books.Hub.Application.Services.Authentication
 
             return result;
         }
+
+        public async Task<RegisterResultDTO> RefreshTokenAsyncHandler(string token)
+        {
+
+            var user = await _userManager.Users.SingleOrDefaultAsync(u => u.RefreshTokens!.Any(t => t.Token == token));
+
+            if (user == null)
+            {
+                return new RegisterResultDTO
+                {
+                    Message = "Invalid token"
+                };
+            }
+
+            var refreshToken = user.RefreshTokens!.Single(t => t.Token == token);
+
+            if (!refreshToken.IsActive)
+            {
+                return new RegisterResultDTO
+                {
+                    Message = "InActive token"
+                };
+            }
+
+            refreshToken.RevokedOn = DateTime.UtcNow;
+
+
+            var newRefreshToken = GenerateRefreshToken();
+            user.RefreshTokens!.Add(newRefreshToken);
+            await _userManager.UpdateAsync(user);
+
+            return await _tokenService.CreateTokenAsync(user , new RegisterResultDTO());
+        }
+
+        public async Task<bool> RevokeTokenAsync(string token)
+        {
+            var user = await _userManager.Users.SingleOrDefaultAsync(u => u.RefreshTokens!.Any(t => t.Token == token));
+
+            if (user == null)
+                return false;
+
+            var refreshToken = user.RefreshTokens!.Single(t => t.Token == token);
+
+            if (!refreshToken.IsActive)
+                return false;
+
+            refreshToken.RevokedOn = DateTime.UtcNow;
+
+            await _userManager.UpdateAsync(user);
+
+            return true;
+        }
+
+
+        private static RefreshToken GenerateRefreshToken()
+        {
+            const int TokenByteSize = 32; // Size of the random token
+            const int TokenExpiryDays = 10; // Refresh token validity
+
+            // Generate a secure random number for the token
+            byte[] randomNumber = new byte[TokenByteSize];
+            RandomNumberGenerator.Fill(randomNumber);
+
+            // Create and return the RefreshToken object
+            return new RefreshToken
+            {
+                Token = Convert.ToBase64String(randomNumber),
+                ExpiresOn = DateTime.UtcNow.AddDays(TokenExpiryDays),
+                CreatedOn = DateTime.UtcNow
+            };
+        }
+
     }
 }

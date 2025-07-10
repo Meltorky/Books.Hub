@@ -2,6 +2,7 @@
 using Books.Hub.Application.Identity;
 using Books.Hub.Application.Interfaces.IServices.Authentication;
 using Books.Hub.Appliction.Options;
+using Books.Hub.Domain.Common;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
@@ -10,6 +11,7 @@ using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -64,12 +66,56 @@ namespace Books.Hub.Application.Services.Authentication
             var token = tokenHandler.WriteToken(createdToken);
 
             // Map to RegisterResultDTO
-            dto.Message = "Token created successfully !!";
+            //dto.Message = "Token created successfully !!";
+            //dto.IsAuthenticated = true;
+            //dto.ExpiresOn = createdToken.ValidTo; // Or descriptor.Expires
+            //dto.Token = token;
+
+            // Map to RegisterResultDTO
+
+            dto.Message = "Token created successfully";
             dto.IsAuthenticated = true;
-            dto.ExpiresOn = createdToken.ValidTo; // Or descriptor.Expires if you prefer
             dto.Token = token;
+            dto.ExpiresOn = createdToken.ValidTo; 
+
+            // Return RefreshToken Date in api, and Refresh Token in Cookie [in memory => JSONIgnore]
+
+            if (user.RefreshTokens is not null && user.RefreshTokens.Any(r => r.IsActive))
+            {
+                var activeRefreshToken = user.RefreshTokens.FirstOrDefault(r => r.IsActive);
+                dto.RefreshToken = activeRefreshToken!.Token;
+                dto.RefreshTokenExpiresOn = activeRefreshToken.ExpiresOn;
+            }
+            else
+            {
+                var refreshToken = GenerateRefreshToken();
+                dto.RefreshToken = refreshToken!.Token;
+                dto.RefreshTokenExpiresOn = refreshToken.ExpiresOn;
+                user.RefreshTokens!.Add(refreshToken);
+                await _userManager.UpdateAsync(user);
+            }
 
             return dto;
         }
+
+
+        private static RefreshToken GenerateRefreshToken()
+        {
+            const int TokenByteSize = 32; // Size of the random token
+            const int TokenExpiryDays = 10; // Refresh token validity
+
+            // Generate a secure random number for the token
+            byte[] randomNumber = new byte[TokenByteSize];
+            RandomNumberGenerator.Fill(randomNumber);
+
+            // Create and return the RefreshToken object
+            return new RefreshToken
+            {
+                Token = Convert.ToBase64String(randomNumber),
+                ExpiresOn = DateTime.UtcNow.AddDays(TokenExpiryDays),
+                CreatedOn = DateTime.UtcNow
+            };
+        }
+
     }
 }

@@ -130,7 +130,7 @@ namespace Books.Hub.Api.Controllers
             // Service throws ArgumentException or others on validation errors -> Global middleware handles them
             var addedAuthor = await _authorService.CreateAuthorProfile(dto, token);
            
-            return CreatedAtRoute(
+            return CreatedAtAction(
                 nameof(GetByIdAsync), 
                 new { id = addedAuthor.Id }, 
                 addedAuthor);

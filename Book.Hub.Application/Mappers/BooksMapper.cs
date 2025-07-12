@@ -50,5 +50,31 @@ namespace Books.Hub.Application.Mappers
                 BookCategories = model.BookCategories.Select(i => i.Category.Name).ToList()
             };
         }
+
+
+        public static List<BookDTO> ToBookDTOList(this List<Book> models)
+        {
+            var list = new List<BookDTO>();
+
+            foreach (var model in models) 
+            {
+                list.Add(new BookDTO 
+                {
+                    Id = model.Id,
+                    Name = model.Name,
+                    Description = model.Description,
+                    IsAvailable = model.IsAvailable,
+                    Language = model.Language,
+                    PageCount = model.PageCount,
+                    Price = model.Price,
+                    Rating = model.Rating,
+                    TotalCopiesSold = model.TotalCopiesSold,
+                    AuthorId = model.AuthorId,                  
+                    PublishedDate = model.PublishedDate,
+                    BookCover = model.BookCover?.Take(50).ToArray(),
+                });
+            }
+            return list;
+        }
     }
 }

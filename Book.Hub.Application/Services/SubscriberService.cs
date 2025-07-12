@@ -26,7 +26,7 @@ namespace Books.Hub.Application.Services
 
         public async Task AddAuthorSubscribion(string userId, int AuthorId, CancellationToken token)
         {
-            var user = await IsUserExist(userId, token , x => x.AuthorSubscribers);
+            var user = await IsUserExist(userId, token);
 
             if (await _unitOfWork.Authors.GetById(AuthorId, token) is null)
                 throw new NotFoundException($"Author with ID {userId} was not found.");
@@ -48,7 +48,7 @@ namespace Books.Hub.Application.Services
 
         public async Task RemoveAuthorSubscribtion(string UserId, int AuthorId, CancellationToken token)
         {
-            var user = await IsUserExist(UserId, token, x => x.AuthorSubscribers);
+            var user = await IsUserExist(UserId, token);
 
             var subscription = user.AuthorSubscribers.SingleOrDefault(x => x.AuthorId == AuthorId);
 
@@ -64,7 +64,7 @@ namespace Books.Hub.Application.Services
 
         public async Task<List<AuthorDTO>> GetSubscribedAuthors(string UserId, CancellationToken token)
         {
-            var user = await IsUserExist(UserId, token, x => x.AuthorSubscribers);
+            var user = await IsUserExist(UserId, token);
 
             var authors = user.AuthorSubscribers.Select(x => x.Author).ToList();
 
@@ -75,7 +75,7 @@ namespace Books.Hub.Application.Services
 
         public async Task BuyBook(string UserId, int BookId, CancellationToken token)
         {
-            var user = await IsUserExist(UserId, token, x => x.UserBooks);
+            var user = await IsUserExist(UserId, token);
 
             if (await _unitOfWork.Books.GetById(BookId, token) is null)
                 throw new NotFoundException($"Book with ID {BookId} was not found.");
@@ -93,11 +93,11 @@ namespace Books.Hub.Application.Services
 
         public async Task<List<BookDTO>> GetBoughtBooks(string UserId, CancellationToken token)
         {
-            var user = await IsUserExist(UserId , token, x => x.UserBooks);
+            var user = await IsUserExist(UserId , token);
 
             var books = user.UserBooks.Select(x => x.Book).ToList();
 
-            return books.Select(x => x.ToBookDTO()).ToList();
+            return books.ToBookDTOList();
         }
 
 
@@ -144,21 +144,23 @@ namespace Books.Hub.Application.Services
             var bookIDs = user.FavouriteBooks.ToList();
 
             var books = await _unitOfWork.Books.GetRange( bookIDs, token);
-            return books.Select(x => x.ToBookDTO()).ToList();
+            return books.ToBookDTOList();
         }
 
 
 
         private async Task<ApplicationUser> IsUserExist(string UserId
-            , CancellationToken token, params Expression<Func<ApplicationUser, object>>[] includes) 
+            , CancellationToken token) 
         {
             var query = _userManager.Users.AsQueryable();
 
-            if (includes.Any())
-                foreach (var include in includes)
-                    query = query.Include(include);
-
-            var user = await query.FirstOrDefaultAsync(x => x.Id == UserId);
+            var user = await query
+                .Include(x => x.AuthorSubscribers)
+                .ThenInclude(x => x.Author)
+                .Include(x => x.UserBooks)
+                .ThenInclude(x => x.Book)
+                .FirstOrDefaultAsync(x => x.Id == UserId);
+            
             if (user is null)
                 throw new NotFoundException($"User with ID {UserId} was not found.");
 

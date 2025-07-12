@@ -37,6 +37,8 @@ builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 builder.Services.AddScoped<IBaseService, BaseService>();
 
+builder.Services.AddScoped<ISubscriberService, SubscriberService>();
+
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ITokenService, TokenService>();
 

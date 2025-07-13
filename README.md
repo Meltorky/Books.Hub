@@ -5,6 +5,7 @@
 ![Tests](https://img.shields.io/badge/tests-passing-brightgreen)
 ![Architecture](https://img.shields.io/badge/architecture-Clean--Arch-blueviolet)
 ![Status](https://img.shields.io/badge/status-active-success)
+![Coverage](https://img.shields.io/badge/coverage-90%25-success)
 
 BooksHub is a .NET 8 Web API for an online book library and store. It supports role-based access (Admin, Author, Subscriber), book management, subscriptions, reviews, favorites, and much more — following Clean Architecture best practices.
 
@@ -37,7 +38,7 @@ BooksHub is a .NET 8 Web API for an online book library and store. It supports r
 | **Backend**        | .NET 8 Web API, Entity Framework Core, SQL Server                           |
 | **Authentication** | ASP.NET Core Identity, JWT (Bearer Tokens), Refresh Token Support           |
 | **Architecture**   | Clean Architecture (4-tier): API, Application, Domain, Infrastructure        |
-| **Utilities**      | AutoMapper (custom), Action Filters, Options Pattern, Middleware             |
+| **Utilities**      | Custom Mappers, Action Filters, Options Pattern, Middleware             |
 | **Testing**        | xUnit, FakeItEasy, FluentAssertions                                          |
 | **Docs & Logs**    | Swagger, Serilog                                                             |
 

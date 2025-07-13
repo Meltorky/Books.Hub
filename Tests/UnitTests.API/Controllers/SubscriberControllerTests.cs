@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Books.Hub.Application.Interfaces.IServices;
 using Books.Hub.Application.DTOs.Authors;
 using Books.Hub.Application.DTOs.Books;
+using Books.Hub.Api.Controllers;
 
 public class SubscriberControllerTests
 {

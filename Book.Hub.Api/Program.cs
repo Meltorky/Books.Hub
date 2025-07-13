@@ -71,12 +71,16 @@ builder.Host.UseSerilog();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-    app.UseDeveloperExceptionPage(); // Enable developer exception page to surface issues clearly
-}
+//if (app.Environment.IsDevelopment())
+//{
+//    app.UseSwagger();
+//    app.UseSwaggerUI();
+//    app.UseDeveloperExceptionPage(); // Enable developer exception page to surface issues clearly
+//}
+
+app.UseSwagger();
+app.UseSwaggerUI();
+app.UseDeveloperExceptionPage(); // Enable developer exception page to surface issues clearly
 
 app.UseSerilogRequestLogging();  // Logs HTTP requests automatically
 

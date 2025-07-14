@@ -79,7 +79,12 @@ var app = builder.Build();
 //}
 
 app.UseSwagger();
-app.UseSwaggerUI();
+app.UseSwaggerUI(options => 
+{
+    options.SwaggerEndpoint("/swagger/v1/swagger.json", "Production A");
+    options.RoutePrefix = string.Empty;
+});
+
 app.UseDeveloperExceptionPage(); // Enable developer exception page to surface issues clearly
 
 app.UseSerilogRequestLogging();  // Logs HTTP requests automatically
@@ -100,7 +105,7 @@ app.UseAuthorization();
 app.MapControllers();
 
 // Seed Identity Default Roles and Users
-await app.Services.SeedIdentityAsync();
+// await app.Services.SeedIdentityAsync();
 
 app.Run();
 

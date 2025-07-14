@@ -86,7 +86,7 @@ BooksHub
   dotnet run --project BooksHub.API
 ```
 
-✅ Swagger docs available at https://localhost:<port>/swagger
+✅ Swagger docs available at https://bookshub.tryasp.net/
 
 ---
 
@@ -162,6 +162,6 @@ Run unit tests using:
 ## 👤 Author
 Mohamed Eltorky
 .NET Backend Developer
-📫 Contact: [Your Email or GitHub Profile Link]
+📫 Contact: [m.eltorky1014@gmail.com]
 
 

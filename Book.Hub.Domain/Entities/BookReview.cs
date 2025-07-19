@@ -24,7 +24,7 @@ namespace Books.Hub.Domain.Entities
 
 
         // Navigation properties
-        public ApplicationUser User { get; set; } = new();
+        public ApplicationUser User { get; set; } = default!;
         public Book Book { get; set; } = new();
     }
 

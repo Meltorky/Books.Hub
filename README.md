@@ -9,6 +9,8 @@
 
 BooksHub is a .NET 8 Web API for an online book library and store. It supports role-based access (Admin, Author, Subscriber), book management, subscriptions, reviews, favorites, and much more — following Clean Architecture best practices.
 
+✅ Swagger docs available at https://bookshub.tryasp.net/
+
 ---
 
 ## ✨ Features

@@ -154,11 +154,6 @@ Run unit tests using:
 
 ---
 
-## 📄 License
-- This project is licensed under the MIT License.
-
----
-
 ## 👤 Author
 Mohamed Eltorky
 .NET Backend Developer

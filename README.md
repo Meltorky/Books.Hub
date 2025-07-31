@@ -150,7 +150,13 @@ Run unit tests using:
 ---
 
 ## 🖼️ Screenshots
-- Screenshots will be added in /screenshots/ folder (coming soon)
+![Home](screenshots/bookhub1.png)
+![Home](screenshots/bookhub2.png)
+![Home](screenshots/bookhub3.png)
+![Home](screenshots/bookhub4.png)
+![Home](screenshots/bookhub5.png)
+![Home](screenshots/bookhub6.png)
+![Home](screenshots/bookhub7.png)
 
 ---
 

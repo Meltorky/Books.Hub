@@ -9,6 +9,8 @@
 
 BooksHub is a .NET 8 Web API for an online book library and store. It supports role-based access (Admin, Author, Subscriber), book management, subscriptions, reviews, favorites, and much more — following Clean Architecture best practices.
 
+✅ Swagger docs available at https://bookshub.tryasp.net/
+
 ---
 
 ## ✨ Features
@@ -86,7 +88,7 @@ BooksHub
   dotnet run --project BooksHub.API
 ```
 
-✅ Swagger docs available at https://localhost:<port>/swagger
+✅ Swagger docs available at https://bookshub.tryasp.net/
 
 ---
 
@@ -150,18 +152,17 @@ Run unit tests using:
 ---
 
 ## 🖼️ Screenshots
-- Screenshots will be added in /screenshots/ folder (coming soon)
-
----
-
-## 📄 License
-- This project is licensed under the MIT License.
+![Home](screenshots/bookhub1.png)
+![Home](screenshots/bookhub2.png)
+![Home](screenshots/bookhub3.png)
+![Home](screenshots/bookhub4.png)
+![Home](screenshots/bookhub5.png)
+![Home](screenshots/bookhub6.png)
+![Home](screenshots/bookhub7.png)
 
 ---
 
 ## 👤 Author
 Mohamed Eltorky
 .NET Backend Developer
-📫 Contact: [Your Email or GitHub Profile Link]
-
-
+📫 Contact: [m.eltorky1014@gmail.com]

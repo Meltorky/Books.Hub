@@ -107,8 +107,8 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-app.UseSwaggerUI();
-app.UseDeveloperExceptionPage(); // Enable developer exception page to surface issues clearly
+    app.UseSwaggerUI();
+    app.UseDeveloperExceptionPage(); // Enable developer exception page to surface issues clearly
 }
 
 //app.UseSwagger();

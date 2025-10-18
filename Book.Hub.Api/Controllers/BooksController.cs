@@ -81,6 +81,7 @@ namespace Books.Hub.Api.Controllers
             var spec = new QuerySpecification<Book>();
             spec.AddCriteria(b => b.BookCategories.Any(bc => bc.CategoryId == categoryId));
             spec.AddInclude(b => b.Include(a => a.Author));
+            spec.AddInclude(b => b.Include(a => a.BookCategories).ThenInclude(c => c.Category));
 
             // Dynamic sorting
             spec.OrderBy = sort switch
@@ -109,6 +110,7 @@ namespace Books.Hub.Api.Controllers
             spec.OrderBy = b => b.Rating;
             spec.OrderByDescending = true;
             spec.AddInclude(b => b.Include(a => a.Author));
+            spec.AddInclude(b => b.Include(a => a.BookCategories).ThenInclude(c => c.Category));
 
             var books = await _bookService.GetAllAsync(spec, token);
             return Ok(books);

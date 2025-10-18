@@ -15,9 +15,9 @@ namespace Books.Hub.Domain.Common
         public int? Take { get; set; }
         public Expression<Func<TEntity, object>>? OrderBy { get; set; }
         public bool? OrderByDescending { get; set; }
-        public List<Func<IQueryable<TEntity>, IIncludableQueryable<TEntity, object>>> IncludeExpressions { get; } = new();
+        public List<Func<IQueryable<TEntity>, IQueryable<TEntity>>> IncludeExpressions { get; } = new();
         
-        public void AddInclude(Func<IQueryable<TEntity>, IIncludableQueryable<TEntity, object>> include)
+        public void AddInclude(Func<IQueryable<TEntity>, IQueryable<TEntity>> include)
             => IncludeExpressions.Add(include);
 
         public void AddCriteria(Expression<Func<TEntity, bool>> criteria)

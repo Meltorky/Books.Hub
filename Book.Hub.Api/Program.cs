@@ -11,6 +11,35 @@ builder.Services.AddSwaggerGen(c =>
     var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
     c.IncludeXmlComments(xmlPath);
     c.EnableAnnotations();
+
+
+    c.SwaggerDoc("v1", new() { Title = "after.senatone API", Version = "v1" });
+
+    // Add JWT bearer auth to Swagger
+    c.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+    {
+        Name = "Authorization",
+        Type = Microsoft.OpenApi.Models.SecuritySchemeType.Http,
+        Scheme = "bearer",
+        BearerFormat = "JWT",
+        In = Microsoft.OpenApi.Models.ParameterLocation.Header,
+        Description = "Enter JWT token in the format: Bearer {your token}"
+    });
+
+    c.AddSecurityRequirement(new Microsoft.OpenApi.Models.OpenApiSecurityRequirement
+    {
+        {
+            new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+            {
+                Reference = new Microsoft.OpenApi.Models.OpenApiReference
+                {
+                    Type = Microsoft.OpenApi.Models.ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            new string[] {}
+        }
+    });
 });
 
 
@@ -58,7 +87,11 @@ builder.Services.AddScoped<IReviewRepository, ReviewRepository>();
 builder.Services.AddScoped<ExecutionTimeFilter>();
 
 // Confiqurate Options
-builder.Services.Configure<ImagesOptions>(builder.Configuration.GetSection("ImageSettings"));
+//builder.Services.Configure<ImagesOptions>(builder.Configuration.GetSection("ImageSettings"));
+builder.Services.AddOptions<ImagesOptions>()
+    .Bind(builder.Configuration.GetSection("ImageSettings"))
+    .ValidateDataAnnotations()
+    .ValidateOnStart();
 
 // Serilog Config
 Log.Logger = new
@@ -71,19 +104,19 @@ builder.Host.UseSerilog();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-//if (app.Environment.IsDevelopment())
-//{
-//    app.UseSwagger();
-//    app.UseSwaggerUI();
-//    app.UseDeveloperExceptionPage(); // Enable developer exception page to surface issues clearly
-//}
-
-app.UseSwagger();
-app.UseSwaggerUI(options => 
+if (app.Environment.IsDevelopment())
 {
-    options.SwaggerEndpoint("/swagger/v1/swagger.json", "Production A");
-    options.RoutePrefix = string.Empty;
-});
+    app.UseSwagger();
+    app.UseSwaggerUI();
+    app.UseDeveloperExceptionPage(); // Enable developer exception page to surface issues clearly
+}
+
+//app.UseSwagger();
+//app.UseSwaggerUI(options => 
+//{
+//    options.SwaggerEndpoint("/swagger/v1/swagger.json", "Production A");
+//    options.RoutePrefix = string.Empty;
+//});
 
 app.UseDeveloperExceptionPage(); // Enable developer exception page to surface issues clearly
 

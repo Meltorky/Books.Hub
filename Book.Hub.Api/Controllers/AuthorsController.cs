@@ -5,6 +5,8 @@ using Books.Hub.Application.Interfaces.IServices;
 using Books.Hub.Application.Options;
 using Books.Hub.Domain.Common;
 using Books.Hub.Domain.Entities;
+using Books.Hub.Domain.Enums;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
@@ -194,6 +196,7 @@ namespace Books.Hub.Api.Controllers
         /// <summary>
         /// Delete AuthorProfile by Addmin/Author
         /// </summary>
+        [Authorize(Roles = nameof(Roles.Admin))]
         [HttpDelete("delete/{Id}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         public async Task<IActionResult> DeleteAsync([FromRoute] int Id , CancellationToken token)

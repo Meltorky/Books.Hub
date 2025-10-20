@@ -103,12 +103,12 @@ builder.Host.UseSerilog();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI();
-    app.UseDeveloperExceptionPage(); // Enable developer exception page to surface issues clearly
+app.UseSwaggerUI();
+app.UseDeveloperExceptionPage(); // Enable developer exception page to surface issues clearly
 }
 
 //app.UseSwagger();
@@ -133,12 +133,14 @@ app.UseMiddleware<RateLimitingMiddleware>();
 
 app.UseHttpsRedirection();
 
+app.UseAuthentication();
+
 app.UseAuthorization();
 
 app.MapControllers();
 
 // Seed Identity Default Roles and Users
-// await app.Services.SeedIdentityAsync();
+ await app.Services.SeedIdentityAsync();
 
 app.Run();
 

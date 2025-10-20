@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Books.Hub.Domain.Enums;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 
 
 namespace Books.Hub.Api.Controllers
@@ -34,6 +36,7 @@ namespace Books.Hub.Api.Controllers
         /// <summary>
         /// Removes a user's subscription to an author.
         /// </summary>
+        [Authorize(Roles = nameof(Roles.Admin))]
         [HttpDelete("unsubscribe")]
         public async Task<IActionResult> RemoveAuthorSubscription(
             [FromQuery] string userId,
@@ -103,6 +106,7 @@ namespace Books.Hub.Api.Controllers
         /// <summary>
         /// Removes a book from user's favourites.
         /// </summary>
+        [Authorize(Roles = nameof(Roles.Admin))]
         [HttpDelete("favourite")]
         public async Task<IActionResult> RemoveBookFromFavourites(
             [FromQuery] string userId,

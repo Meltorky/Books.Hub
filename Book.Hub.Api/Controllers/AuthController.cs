@@ -1,5 +1,6 @@
 ﻿using Books.Hub.Application.DTOs.Auth;
 using Books.Hub.Domain.Enums;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Books.Hub.Api.Controllers
@@ -63,6 +64,7 @@ namespace Books.Hub.Api.Controllers
         /// create new JWT/refresh tokens, To allows silent re-authentication without logging the user out.
         /// </summary>
         /// <response code="200">returns new access + refresh token, and stores the refresh token in cookie again.</response>
+        [Authorize(Roles = nameof(Roles.Admin))]
         [HttpGet("refreshToken")]
         public async Task<IActionResult> RefreshToken()
         {
@@ -83,6 +85,7 @@ namespace Books.Hub.Api.Controllers
         /// Revoke refresh token, to allows a user to log out or revoke sessions
         /// </summary>
         /// <param name="dto">The refresh token</param>
+        [Authorize(Roles = nameof(Roles.Admin))]
         [HttpPost("revokeToken")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         public async Task<IActionResult> RevokeToken([FromBody] RevokeTokenDTO dto)

@@ -2,6 +2,8 @@
 using Books.Hub.Application.Interfaces.IServices;
 using Books.Hub.Domain.Common;
 using Books.Hub.Domain.Entities;
+using Books.Hub.Domain.Enums;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -120,6 +122,7 @@ namespace Books.Hub.Api.Controllers
         /// <summary>
         /// Delete category (by admin)
         /// </summary>
+        [Authorize(Roles = nameof(Roles.Admin))]
         [HttpDelete("delete/{Id}")]
         public async Task<IActionResult> DeleteAsync(int Id , CancellationToken token) 
         {

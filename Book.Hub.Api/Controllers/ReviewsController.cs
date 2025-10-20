@@ -1,4 +1,6 @@
 ﻿using Books.Hub.Application.DTOs.BookReviews;
+using Books.Hub.Domain.Enums;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading;
 using System.Threading.Tasks;
@@ -38,6 +40,7 @@ namespace Books.Hub.Api.Controllers
         /// Deletes a review by its ID.
         /// </summary>
         [HttpDelete("{id}")]
+        [Authorize(Roles = nameof(Roles.Admin))]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> DeleteReview(int id, CancellationToken token)

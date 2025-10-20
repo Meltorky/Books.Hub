@@ -1,13 +1,15 @@
-﻿using System.ComponentModel.DataAnnotations;
-using Books.Hub.Api.Validators;
+﻿using Books.Hub.Api.Validators;
 using Books.Hub.Application.DTOs.Books;
 using Books.Hub.Application.Interfaces.IServices;
 using Books.Hub.Application.Options;
 using Books.Hub.Domain.Common;
 using Books.Hub.Domain.Entities;
+using Books.Hub.Domain.Enums;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
+using System.ComponentModel.DataAnnotations;
 
 namespace Books.Hub.Api.Controllers
 {
@@ -248,7 +250,9 @@ namespace Books.Hub.Api.Controllers
         /// Delete Book With Id
         /// </summary>
         [HttpDelete("delete/{id}")]
+        [Authorize(Roles = nameof(Roles.Admin))]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> DeletetAsync([FromRoute] int id, CancellationToken cancellationToken) 
         {
             await _bookService.DeleteAsync(id, cancellationToken);

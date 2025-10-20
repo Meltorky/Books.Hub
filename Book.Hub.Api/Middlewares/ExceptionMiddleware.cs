@@ -37,6 +37,12 @@ namespace Books.Hub.Api.Middlewares
                 context.Response.StatusCode = StatusCodes.Status499ClientClosedRequest;
                 await context.Response.WriteAsJsonAsync(new { error = "Request was canceled." });
             }
+            catch (UnauthorizedAccessException ex)
+            {
+                _logger.LogError(ex, "You don't have premissions to do this action. Path: {Path}", context.Request.Path);
+                context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                await context.Response.WriteAsJsonAsync(new { error = "You don't have premissions to do this action" });
+            }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Unhandled exception occurred. Path: {Path}", context.Request.Path);

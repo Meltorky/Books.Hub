@@ -6,7 +6,7 @@ namespace Books.Hub.Domain.Entities
 {
     public class Book : BaseEntity
     {
-        [MaxLength(300)]
+        [MaxLength(1000)]
         public string Description { get; set; } = string.Empty;
 
         [MaxLength(30)]
@@ -25,7 +25,7 @@ namespace Books.Hub.Domain.Entities
 
         [ForeignKey(nameof(Author))]
         public int AuthorId { get; set; }
-        public Author Author { get; set; } = default!;
+        public Author Author { get; set; } = null!;
 
         public ICollection<BookCategory> BookCategories { get; set; } = new List<BookCategory>();
         public ICollection<UserBook> UserBooks { get; set; } = new List<UserBook>();

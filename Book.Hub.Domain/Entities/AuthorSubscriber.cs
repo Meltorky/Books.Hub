@@ -6,7 +6,9 @@ namespace Books.Hub.Domain.Entities
     {
         public int AuthorId { get; set; }
         public string SubscriberId { get; set; } = string.Empty;
-        public Author Author { get; set; } = default!;
-        public ApplicationUser Subscriber { get; set; } = default!;
+        public DateTime SubscribeAt { get; set; } = DateTime.UtcNow;
+
+        public Author Author { get; set; } = null!;
+        public ApplicationUser Subscriber { get; set; } = null!;
     }
 }

@@ -5,7 +5,6 @@ using Books.Hub.Application.Interfaces.IServices;
 using Books.Hub.Application.Mappers;
 using Books.Hub.Domain.Common;
 using Books.Hub.Domain.Entities;
-using Microsoft.EntityFrameworkCore;
 
 namespace Books.Hub.Application.Services
 {

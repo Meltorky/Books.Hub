@@ -5,11 +5,9 @@ namespace Books.Hub.Domain.Entities
 {
     public class BookReview
     {
-        [Key]
-        public int Id { get; set; }
 
         [Required]
-        public string UserId { get; set; } = string.Empty;
+        public string UserId { get; set; } = default!;
 
         [Required]
         public int BookId { get; set; }
@@ -24,7 +22,7 @@ namespace Books.Hub.Domain.Entities
 
 
         // Navigation properties
-        public ApplicationUser User { get; set; } = default!;
+        public ApplicationUser User { get; set; } = null!;
         public Book Book { get; set; } = new();
     }
 

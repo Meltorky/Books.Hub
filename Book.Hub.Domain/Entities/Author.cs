@@ -8,7 +8,7 @@ namespace Books.Hub.Domain.Entities
         [MaxLength(30)]
         public string Nationality { get; set; } = string.Empty;
 
-        [MaxLength(300)]
+        [MaxLength(1000)]
         public string Bio { get; set; } = string.Empty ;
 
         public bool IsActive { get; set; } = false;    // Is This Author still write Books ?

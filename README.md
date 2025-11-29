@@ -137,6 +137,107 @@ Run unit tests using:
 
 ---
 
+
+## Database Schema
+```mermaid
+erDiagram
+    BaseEntity {
+        int Id PK
+        string Name
+    }
+    
+    Author {
+        int Id PK
+        string Name
+        string Nationality
+        string Bio
+        bool IsActive
+        DateOnly DateOfBrith
+        byte[] AuthorImage
+        bool HaveAccount
+        string ApplicationAuthorId FK
+    }
+    
+    Book {
+        int Id PK
+        string Name
+        string Description
+        string Language
+        double Rating
+        DateOnly PublishedDate
+        int PageCount
+        double Price
+        bool IsAvailable
+        int TotalCopiesSold
+        byte[] BookCover
+        int AuthorId FK
+    }
+    
+    Category {
+        int Id PK
+        string Name
+    }
+    
+    BookCategory {
+        int BookId PK_FK
+        int CategoryId PK_FK
+    }
+    
+    UserBook {
+        int BookId PK_FK
+        string UserId PK_FK
+    }
+    
+    BookReview {
+        int Id PK
+        string UserId FK
+        int BookId FK
+        int Rating
+        string Comment
+        DateTime CreatedAt
+    }
+    
+    AuthorSubscriber {
+        int AuthorId PK_FK
+        string SubscriberId PK_FK
+    }
+    
+    ApplicationUser {
+        string Id PK
+        string UserName
+        string Email
+        string FirstName
+        string LastName
+        List FavouriteBooks
+        List RefreshTokens
+    }
+    
+    BaseEntity ||--o{ Author : inherits
+    BaseEntity ||--o{ Book : inherits
+    BaseEntity ||--o{ Category : inherits
+    
+    Author ||--o{ Book : "writes (1:N)"
+    Author ||--o{ AuthorSubscriber : "has subscribers (1:N)"
+    
+    Book ||--o{ BookCategory : "has (1:N)"
+    Category ||--o{ BookCategory : "contains (1:N)"
+    
+    Book ||--o{ UserBook : "owned by (1:N)"
+    ApplicationUser ||--o{ UserBook : "owns (1:N)"
+    
+    Book ||--o{ BookReview : "receives (1:N)"
+    ApplicationUser ||--o{ BookReview : "writes (1:N)"
+    
+    ApplicationUser ||--o{ AuthorSubscriber : "subscribes to (1:N)"
+```
+
+
+
+
+
+
+
+
 ## 🧭 Roadmap
 
 - ✅ Backend API (current)

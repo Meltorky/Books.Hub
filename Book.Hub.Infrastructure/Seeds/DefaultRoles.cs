@@ -9,12 +9,11 @@ namespace Books.Hub.Infrastructure.Seeds
     {
         public static async Task SeedAsync(RoleManager<IdentityRole> roleManager) 
         {
-            if (!await roleManager.Roles.AnyAsync()) 
-            {
-                await roleManager.CreateAsync(new IdentityRole { Name = Roles.Admin.ToString()});
-                await roleManager.CreateAsync(new IdentityRole { Name = Roles.Author.ToString()});
-                await roleManager.CreateAsync(new IdentityRole { Name = Roles.Subscriber.ToString()});
-            }
+            List<string> roles = Enum.GetNames(typeof(Roles)).ToList();
+
+            foreach (var role in roles)
+                if (!await roleManager.RoleExistsAsync(role))
+                    await roleManager.CreateAsync(new IdentityRole { Name = role});
         }
     }
 }

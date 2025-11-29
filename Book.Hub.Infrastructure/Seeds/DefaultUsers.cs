@@ -1,5 +1,4 @@
 ﻿using Books.Hub.Application.Identity;
-using Books.Hub.Domain.Constants;
 using Books.Hub.Domain.Enums;
 using Microsoft.AspNetCore.Identity;
 
@@ -7,27 +6,30 @@ namespace Books.Hub.Infrastructure.Seeds
 {
     public static class DefaultUsers
     {
-        public static async Task SeedAdminUserAsync(UserManager<ApplicationUser> userManager) 
+        public static async Task SeedAdminUserAsync(UserManager<ApplicationUser> userManager)
         {
-            var adminUser = new ApplicationUser
+            var superAdminUser = new ApplicationUser
             {
-                Email = "admin@gmail.com",
-                UserName = "admin@gmail.com",
-                EmailConfirmed = true,               
-                FirstName = "Admin",
+                Email = "superadmin@gmail.com",
+                UserName = "@superadmin",
+                EmailConfirmed = true,
+                FirstName = "Super",
                 LastName = "Admin"
             };
 
-            if (await userManager.FindByEmailAsync(adminUser.Email) is null)
-            {
-                string password = "Ab123456+";
-                var result = await userManager.CreateAsync(adminUser,password);
+            var existUser = await userManager.FindByEmailAsync(superAdminUser.Email);
 
-                if (result.Succeeded)
-                {
-                    await userManager.AddToRoleAsync(adminUser,Roles.Admin.ToString());
-                }
+            if (existUser is null)
+            {
+                await userManager.CreateAsync(superAdminUser, "Ab123456++");
+                existUser = superAdminUser;
             }
+
+            List<string> roles = Enum.GetNames(typeof(Roles)).ToList();
+
+            foreach (var role in roles)
+                if (!await userManager.IsInRoleAsync(existUser, role))
+                    await userManager.AddToRoleAsync(existUser, role);
         }
     }
 }

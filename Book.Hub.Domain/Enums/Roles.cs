@@ -8,6 +8,7 @@ namespace Books.Hub.Domain.Enums
 {
     public enum Roles
     {
+        SuperAdmin,
         Admin,
         Author,
         Subscriber,

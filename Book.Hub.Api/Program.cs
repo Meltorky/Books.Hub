@@ -2,7 +2,12 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
-builder.Services.AddControllers();
+builder.Services.AddControllers(options =>
+{
+    options.Filters.Add<ExecutionTimeFilter>(); // filter to log every request execution time  
+    options.Filters.Add<PerformanceActionFilter>();
+}); 
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
@@ -85,6 +90,7 @@ builder.Services.AddScoped<IReviewRepository, ReviewRepository>();
 
 // Add Action Filter that calculate the time excution
 builder.Services.AddScoped<ExecutionTimeFilter>();
+builder.Services.AddScoped<PerformanceActionFilter>();
 
 // Confiqurate Options
 //builder.Services.Configure<ImagesOptions>(builder.Configuration.GetSection("ImageSettings"));
@@ -107,8 +113,8 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-app.UseSwaggerUI();
-app.UseDeveloperExceptionPage(); // Enable developer exception page to surface issues clearly
+    app.UseSwaggerUI();
+    app.UseDeveloperExceptionPage(); // Enable developer exception page to surface issues clearly
 }
 
 //app.UseSwagger();
@@ -140,7 +146,7 @@ app.UseAuthorization();
 app.MapControllers();
 
 // Seed Identity Default Roles and Users
- // await app.Services.SeedIdentityAsync();
+// await app.Services.SeedIdentityAsync();
 
 app.Run();
 

@@ -7,7 +7,7 @@ namespace Books.Hub.Application.Interfaces.IRepositories
     {
         Task<TEntity?> GetById(int id, CancellationToken token);
 
-        Task<TEntity?> GetById(int id, QuerySpecification<TEntity>? spec, CancellationToken token);
+        Task<TEntity?> GetById(int id, QuerySpecification<TEntity> spec, CancellationToken token);
 
 
         // get range and return List of TEntity

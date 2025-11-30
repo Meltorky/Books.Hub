@@ -12,7 +12,9 @@ namespace Books.Hub.Api.ActionFilters
             stopwatch.Stop();
 
             var executionTime = stopwatch.ElapsedMilliseconds;
+            Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine($"Action {context.ActionDescriptor.DisplayName} executed in {executionTime} ms");
+            Console.ForegroundColor = ConsoleColor.White;
         }
     }
 

@@ -19,7 +19,7 @@ namespace Books.Hub.Infrastructure.Repositories
 
 
 
-        // Get specific Entity with Id foe edit and Delete
+        // Get specific Entity with Id for edit and Delete
         public async Task<TEntity?> GetById(int id, CancellationToken token)
         {
             return await _context.Set<TEntity>().FindAsync(id);
@@ -28,12 +28,12 @@ namespace Books.Hub.Infrastructure.Repositories
 
 
         // Get specific Entity with Id
-        public async Task<TEntity?> GetById(int id, QuerySpecification<TEntity>? spec, CancellationToken token)
+        public async Task<TEntity?> GetById(int id, QuerySpecification<TEntity> spec, CancellationToken token)
         {
             IQueryable<TEntity> query = _context.Set<TEntity>();
 
-            if (spec is not null)
-                foreach (var include in spec.IncludeExpressions)
+            if (spec.Includes.Any())
+                foreach (var include in spec.Includes)
                     query = include(query);
 
             return await query
@@ -84,6 +84,10 @@ namespace Books.Hub.Infrastructure.Repositories
             foreach (var criteria in spec.Criteria)
                 query = query.Where(criteria);
 
+            // Apply .Include().ThenInclude() chains
+            foreach (var include in spec.Includes)
+                query = include(query);
+
             // Apply sorting
             if (spec.OrderBy != null)
             {
@@ -93,18 +97,70 @@ namespace Books.Hub.Infrastructure.Repositories
             }
 
             // Apply pagination
-            if (spec.Skip.HasValue)
-                query = query.Skip(spec.Skip.Value);
-
-            if (spec.Take.HasValue)
-                query = query.Take(spec.Take.Value);
-
-            // Apply .Include().ThenInclude() chains
-            foreach (var include in spec.IncludeExpressions)
-                query = include(query);
+            query = query.Skip(spec.Skip);
+            query = query.Take(spec.Take);
 
             return await query.AsNoTracking().ToListAsync(token);
         }
+
+        public async Task<TEntity> AddAsync(TEntity model, CancellationToken token)
+        {
+            _context.Set<TEntity>().Add(model);
+            await _context.SaveChangesAsync(token);
+            return model;
+        }
+
+
+
+        public async Task<bool> EditAsync(TEntity model, CancellationToken token)
+        {
+            _context.Set<TEntity>().Update(model);
+            return await _context.SaveChangesAsync(token) > 0;
+        }
+
+
+
+        public async Task<bool> DeleteAsync(TEntity entity, CancellationToken token)
+        {
+            _context.Set<TEntity>().Remove(entity);
+            return await _context.SaveChangesAsync(token) > 0;
+        }
+
+
+
+        public async Task RemoveRange(ICollection<TEntity> entities)
+        {
+            _context.Set<TEntity>().RemoveRange(entities);
+            await _context.SaveChangesAsync();
+        }
+
+
+
+        public async Task<bool> IsExitAsync(Expression<Func<TEntity, bool>> predicate, CancellationToken token)
+        {
+            return await _context.Set<TEntity>().AnyAsync(predicate, token);
+        }
+
+
+
+
+
+
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="token"></param>
+        /// <param name="includeExpressions"></param>
+        /// <returns></returns>
+
+
+
+
+
+
+
 
 
 
@@ -166,7 +222,7 @@ namespace Books.Hub.Infrastructure.Repositories
                 .Take(Take);
 
             if (includeExpressions.Any())
-                foreach (var includeExpression in includeExpressions)   
+                foreach (var includeExpression in includeExpressions)
                     query.Include(includeExpression);
 
             return await query.ToListAsync(token);
@@ -177,7 +233,7 @@ namespace Books.Hub.Infrastructure.Repositories
         // get all with sorting and add includes
         public async Task<IEnumerable<TEntity>> GetAll
             (Expression<Func<TEntity, object>> OrderBy, bool IsDesc, CancellationToken token, params Expression<Func<TEntity, object>>[] includeExpressions)
-        
+
         {
             IQueryable<TEntity> query = _context.Set<TEntity>();
 
@@ -242,13 +298,13 @@ namespace Books.Hub.Infrastructure.Repositories
 
         // get all by criteria, pagination then add sorting and add includes
         public async Task<IEnumerable<TEntity>> GetAll(Expression<Func<TEntity, bool>> criteria, int Skip, int Take
-            , Expression<Func<TEntity, object>> OrderBy ,bool IsDesc
+            , Expression<Func<TEntity, object>> OrderBy, bool IsDesc
             , CancellationToken token, params Expression<Func<TEntity, object>>[] includeExpressions)
         {
             IQueryable<TEntity> query = _context.Set<TEntity>()
                 .Where(criteria);
 
-            if (IsDesc) 
+            if (IsDesc)
                 query.OrderByDescending(OrderBy)
                     .Skip(Skip)
                     .Take(Take);
@@ -263,46 +319,5 @@ namespace Books.Hub.Infrastructure.Repositories
 
             return await query.ToListAsync(token);
         }
-
-
-
-        public async Task<TEntity> AddAsync(TEntity model, CancellationToken token)
-        {
-            _context.Set<TEntity>().Add(model);
-            await _context.SaveChangesAsync(token);
-            return model;
-        }
-
-
-
-        public async Task<bool> EditAsync(TEntity model, CancellationToken token)
-        {
-            _context.Set<TEntity>().Update(model);
-            return await _context.SaveChangesAsync(token) > 0;
-        }
-
-
-
-        public async Task<bool> DeleteAsync(TEntity entity, CancellationToken token)
-        {
-            _context.Set<TEntity>().Remove(entity);
-            return await _context.SaveChangesAsync(token) > 0;
-        }
-
-
-
-        public async Task RemoveRange(ICollection<TEntity> entities)
-        {
-            _context.Set<TEntity>().RemoveRange(entities);
-            await _context.SaveChangesAsync();
-        }
-
-
-
-        public async Task<bool> IsExitAsync(Expression<Func<TEntity, bool>> predicate, CancellationToken token)
-        {
-            return await _context.Set<TEntity>().AnyAsync(predicate, token);
-        }
-
     }
 }

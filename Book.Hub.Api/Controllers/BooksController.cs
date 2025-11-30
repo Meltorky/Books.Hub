@@ -60,8 +60,8 @@ namespace Books.Hub.Api.Controllers
         {
             var spec = new QuerySpecification<Book>();
             spec.AddCriteria(b => b.Name.Contains(query));
-            spec.Skip = (page - 1) * pageSize;
-            spec.Take = pageSize;
+            //spec.Skip = (page - 1) * pageSize;
+            //spec.Take = pageSize;
             spec.OrderBy = b => b.Name;
 
             var books = await _bookService.GetAllAsync(spec, token);
@@ -108,7 +108,7 @@ namespace Books.Hub.Api.Controllers
         {
             var spec = new QuerySpecification<Book>();
             spec.AddCriteria(b => b.TotalCopiesSold > 0);
-            spec.Take = 10;
+            //spec.Take = 10;
             spec.OrderBy = b => b.Rating;
             spec.OrderByDescending = true;
             spec.AddInclude(b => b.Include(a => a.Author));

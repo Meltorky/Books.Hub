@@ -1,26 +1,23 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore.Query;
+﻿using System.Linq.Expressions;
 
 namespace Books.Hub.Domain.Common
 {
-    public class QuerySpecification<TEntity>
+    public class QuerySpecification<T> where T : class
     {
-        public List<Expression<Func<TEntity, bool>>> Criteria { get; } = new();
-        public int? Skip { get; set; }
-        public int? Take { get; set; }
-        public Expression<Func<TEntity, object>>? OrderBy { get; set; }
-        public bool? OrderByDescending { get; set; }
-        public List<Func<IQueryable<TEntity>, IQueryable<TEntity>>> IncludeExpressions { get; } = new();
-        
-        public void AddInclude(Func<IQueryable<TEntity>, IQueryable<TEntity>> include)
-            => IncludeExpressions.Add(include);
+        public List<Expression<Func<T, bool>>> Criteria { get; } = new();
+        //public int pageNumber { get; set; } = 1;
+        //public int resultsPerPage { get; set; } = 20;
+        //public int Skip => (pageNumber - 1) * resultsPerPage;
+        //public int Take => resultsPerPage;
+        public int Skip { get; set; }
+        public int Take { get; set; }
+        public Expression<Func<T, object>>? OrderBy { get; set; }
+        public bool OrderByDescending { get; set; } = false;
+        public List<Func<IQueryable<T>, IQueryable<T>>> Includes { get; } = new();
 
-        public void AddCriteria(Expression<Func<TEntity, bool>> criteria)
-            => Criteria.Add(criteria);
+        // helper methods
+        public void AddCriteria(Expression<Func<T, bool>> criteria) => Criteria.Add(criteria);
+        public void AddInclude(Func<IQueryable<T>, IQueryable<T>> include) => Includes.Add(include);
+
     }
 }

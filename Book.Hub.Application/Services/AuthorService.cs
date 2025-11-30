@@ -4,16 +4,11 @@ using Books.Hub.Application.Identity;
 using Books.Hub.Application.Interfaces.IRepositories;
 using Books.Hub.Application.Interfaces.IServices;
 using Books.Hub.Application.Mappers;
-using Books.Hub.Application.Options;
 using Books.Hub.Domain.Common;
 using Books.Hub.Domain.Entities;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Options;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
+
 
 namespace Books.Hub.Application.Services
 {
@@ -28,22 +23,59 @@ namespace Books.Hub.Application.Services
         }
 
 
-
-        public async Task<IEnumerable<AuthorDTO>> GetAllAsync(QuerySpecification<Author> spec, CancellationToken token)
+        // get all authors
+        public async Task<List<AuthorDTO>> GetAllAsync(AdvancedSearch search, CancellationToken token)
         {
-            var authors = await _unitOfWork.Authors.GetAll(spec,token);
-            return authors.Select(a => a.ToAuthorDTO());
+            var spec = new QuerySpecification<Author>();
+            spec.AddInclude(q => q.Include(a => a.Books));
+            spec.AddInclude(q => q.Include(a => a.AuthorSubscribers));
+            spec.Skip = search.Skip;
+            spec.Take = search.Take;
+            spec.OrderByDescending = search.IsDesc;
+            spec.OrderBy = search.SortedBy switch
+            {
+                "trending" => a => a.Books.Sum(i => i.TotalCopiesSold),
+                "popular" => a => a.AuthorSubscribers.Count(),
+                _ => a => a.Name,
+            };
+
+            if(search.searchText is not null)
+                spec.AddCriteria(a => a.Name.Contains(search.searchText));
+
+            var authors = await _unitOfWork.Authors.GetAll(spec, token);
+            return authors.Select(a => a.ToAuthorDTO()).ToList();
         }
 
 
-
-        public async Task<AuthorDTO> GetByIdAsync(int Id, QuerySpecification<Author>? spec,CancellationToken token)
+        // get author by id
+        public async Task<AuthorDTO> GetByIdAsync(int Id,CancellationToken token)
         {
-            var author = await _unitOfWork.Authors.GetById(Id, spec,token);
+            var spec = new QuerySpecification<Author>();
+            spec.AddInclude(q => q.Include(a => a.Books));
+            spec.AddInclude(q => q.Include(a => a.AuthorSubscribers));
 
-            return author is null ?
-                throw new NotFoundException($"Author with ID {Id} was not found.") : 
-                author.ToAuthorDTO();
+            var author = await _unitOfWork.Authors.GetById(Id,spec, token)
+                ?? throw new NotFoundException($"Author with ID {Id} was not found.");
+
+            return author.ToAuthorDTO();
+        }
+
+
+        // get author by id without Includes
+        public async Task<AuthorDTO> SimpleGetByIdAsync(int Id, CancellationToken token)
+        {
+            var author = await _unitOfWork.Authors.GetById(Id, token)
+                ?? throw new NotFoundException($"Author with ID {Id} was not found.");
+
+            return author.ToAuthorDTO();
+        }
+
+
+        // get author by id optimized
+        public async Task<AuthorDTO> GetByIdAsync1(int Id, CancellationToken token)
+        {
+            return await _unitOfWork.Authors.GetByIdAsyncOptimized(Id, token)
+                ?? throw new NotFoundException($"Author with ID {Id} was not found.");
         }
 
 
@@ -69,7 +101,6 @@ namespace Books.Hub.Application.Services
             var author = await _unitOfWork.Authors.AddAsync(newProfile, token);
             return author.ToAuthorDTO();
         }
-
 
 
         // create author profile by Author User
@@ -118,6 +149,7 @@ namespace Books.Hub.Application.Services
         }
 
 
+
         public async Task<bool> DeleteAsync(int Id , CancellationToken token)
         {
             var author = await _unitOfWork.Authors.GetById(Id , token);
@@ -126,6 +158,5 @@ namespace Books.Hub.Application.Services
 
             return await _unitOfWork.Authors.DeleteAsync(author , token);
         }
-
     }
 }

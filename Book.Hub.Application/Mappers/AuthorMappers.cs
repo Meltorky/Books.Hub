@@ -1,10 +1,5 @@
 ﻿using Books.Hub.Application.DTOs.Authors;
 using Books.Hub.Domain.Entities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Books.Hub.Application.Mappers
 {
@@ -20,6 +15,9 @@ namespace Books.Hub.Application.Mappers
                 DateOfBrith = model.DateOfBrith,
                 IsActive = model.IsActive,
                 Nationality = model.Nationality,
+                BooksSold = model.Books.Sum(b => b.TotalCopiesSold),
+                SubscribersNumber = model.AuthorSubscribers.Count(),
+                ApplicationAuthorId = model.ApplicationAuthorId,
                 AuthorImage = model.AuthorImage?.Take(50).ToArray(),  // .Take(50) => this is just for simplification while production, Not used in the real cases
                 Books = model.Books.Select(x => x.ToBookDTO()).ToList()
             };
@@ -37,7 +35,5 @@ namespace Books.Hub.Application.Mappers
                 Nationality = dto.Nationality,
             };
         }
-
-       
     }
 }

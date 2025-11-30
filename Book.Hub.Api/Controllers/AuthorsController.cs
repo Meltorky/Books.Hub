@@ -1,15 +1,11 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using Books.Hub.Api.Validators;
 using Books.Hub.Application.DTOs.Authors;
-using Books.Hub.Application.Interfaces.IServices;
-using Books.Hub.Application.Options;
 using Books.Hub.Domain.Common;
 using Books.Hub.Domain.Entities;
 using Books.Hub.Domain.Enums;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Options;
 
 namespace Books.Hub.Api.Controllers
@@ -29,87 +25,57 @@ namespace Books.Hub.Api.Controllers
 
 
         /// <summary>
-        /// Get all Authors with full details (Order By: popular/name)(admin dashboard)
-        /// </summary>
-        [HttpGet("full-details")]  
-        public async Task<IActionResult> GetAllAsync(
-            CancellationToken token,
-            [FromQuery] string sort = "popular",
-            [FromQuery] bool desc = true)
-        {
-            var spec = new QuerySpecification<Author>();
-            spec.AddInclude(q => q.Include(a => a.Books));
-            spec.OrderByDescending = desc;
-            spec.OrderBy = sort switch 
-            {
-                "popular" => a => a.Books.Count,
-                _ => a => a.Name,
-            };
-
-            var authors = await _authorService.GetAllAsync(spec,token);
-            return Ok(authors);
-        }
-
-
-
-        /// <summary>
-        /// Search Authors by Name with pagination (Order By: trending/popular/name) (catalog page)
-        /// </summary>
-        [HttpGet("search")]
-        public async Task<IActionResult> GetAllAsync(
-            CancellationToken token,
-            [FromQuery] string search,
-            [FromQuery][Range(1, int.MaxValue, ErrorMessage = "Page must be greater than 0")] int page = 1,
-            [FromQuery][Range(1, 100, ErrorMessage = "Page size must be between 1 and 100")] int pageSize = 10,
-            [FromQuery] string sort = "trending",
-            [FromQuery] bool desc = true)
-        {
-            var spec = new QuerySpecification<Author>();
-            spec.AddCriteria(a => a.Name.Contains(search));
-            spec.AddInclude(q => q.Include(a => a.AuthorSubscribers));
-            spec.AddInclude(q => q.Include(a => a.Books));
-            spec.Skip = (page-1) * pageSize;
-            spec.Take = pageSize;
-            spec.OrderByDescending = desc;
-            spec.OrderBy = sort switch
-            {
-                "trending" => a => a.AuthorSubscribers.Count,
-                "popular" => a => a.Books.Count,
-                _ => a => a.Name,
-            };
-
-            var authors = await _authorService.GetAllAsync(spec, token);
-            return Ok(authors);
-        }
-
-
-
-        /// <summary>
-        /// Get specific Author with full related books (Author Manager)
-        /// </summary>
-        [HttpGet("{id}/details")]
-        public async Task<IActionResult> GetByIdAsync([FromRoute] int id, CancellationToken token)
-        {
-            var spec = new QuerySpecification<Author>();
-            spec.AddInclude(q => q.Include(a => a.Books));
-
-            var author = await _authorService.GetByIdAsync(id,spec,token);
-            return Ok(author);
-        }
-
-
-
-        /// <summary>
         /// Get specific Author details simple (admin dashboard)
         /// </summary>
         [HttpGet("{id}")]
         public async Task<IActionResult> SimpleGetByIdAsync([FromRoute] int id, CancellationToken token)
         {
-            var author = await _authorService.GetByIdAsync(id, null,token);
+            var author = await _authorService.SimpleGetByIdAsync(id, token);
             return Ok(author);
         }
 
 
+
+        /// <summary>
+        /// Get specific Author with full related books
+        /// </summary>
+        [HttpGet("{id}/details")]
+        public async Task<IActionResult> GetByIdAsync([FromRoute] int id, CancellationToken token)
+        {
+            var author = await _authorService.GetByIdAsync(id, token);
+            return Ok(author);
+        }
+
+
+
+        /// <summary>
+        /// Search Authors by Name with pagination (catalog page) 
+        /// </summary>
+        /// <param name="token"></param>
+        /// <param name="search">max 100 char</param>
+        /// <param name="pageNumber">Range from 1</param>
+        /// <param name="pageSize">Range from 1 to 100</param>
+        /// <param name="sort">select one "trending/popular/name"</param>
+        /// <returns></returns>
+        [HttpGet("All")]
+        public async Task<IActionResult> GetAllAsync(
+            CancellationToken token,
+            [FromQuery] string? search,
+            [FromQuery][Range(1, int.MaxValue)] int pageNumber = 1,
+            [FromQuery][Range(1, 100)] int pageSize = 20,
+            [FromQuery] string sort = "trending")
+        {
+            AdvancedSearch advancedSearch = new AdvancedSearch 
+            {
+                searchText = search,
+                pageNumber = pageNumber,
+                resultsPerPage = pageSize,
+                SortedBy = sort,
+                IsDesc = true,
+            };
+            var authors = await _authorService.GetAllAsync(advancedSearch,token);
+            return Ok(authors);
+        }
 
 
 
@@ -131,10 +97,10 @@ namespace Books.Hub.Api.Controllers
 
             // Service throws ArgumentException or others on validation errors -> Global middleware handles them
             var addedAuthor = await _authorService.CreateAuthorProfile(dto, token);
-           
+
             return CreatedAtAction(
-                nameof(GetByIdAsync), 
-                new { id = addedAuthor.Id }, 
+                nameof(GetByIdAsync),
+                new { id = addedAuthor.Id },
                 addedAuthor);
         }
 
@@ -163,7 +129,7 @@ namespace Books.Hub.Api.Controllers
             }
 
             // Service throws ArgumentException or others on validation errors -> Global middleware handles them
-            var addedAuthor = await _authorService.CreateAuthorProfile(id,dto,token);
+            var addedAuthor = await _authorService.CreateAuthorProfile(id, dto, token);
 
             return CreatedAtRoute(
                 nameof(GetByIdAsync),
@@ -177,7 +143,7 @@ namespace Books.Hub.Api.Controllers
         /// edit Author Profile by Admin/Author
         /// </summary>
         [HttpPut("edit")]
-        public async Task<IActionResult> EditAuthorAsync([FromForm] EditAuthorDTO dto , CancellationToken token)
+        public async Task<IActionResult> EditAuthorAsync([FromForm] EditAuthorDTO dto, CancellationToken token)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
@@ -199,7 +165,7 @@ namespace Books.Hub.Api.Controllers
         [Authorize(Roles = nameof(Roles.Admin))]
         [HttpDelete("delete/{Id}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
-        public async Task<IActionResult> DeleteAsync([FromRoute] int Id , CancellationToken token)
+        public async Task<IActionResult> DeleteAsync([FromRoute] int Id, CancellationToken token)
         {
             await _authorService.DeleteAsync(Id, token);
             return NoContent();
@@ -207,4 +173,3 @@ namespace Books.Hub.Api.Controllers
 
     }
 }
-    

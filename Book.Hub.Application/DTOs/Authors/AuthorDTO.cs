@@ -1,15 +1,7 @@
 ﻿using Books.Hub.Application.DTOs.Books;
-using Books.Hub.Domain.Entities;
-using Microsoft.AspNetCore.Http;
 using Swashbuckle.AspNetCore.Annotations;
-using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
 using System.Text.Json.Serialization;
-using System.Threading.Tasks;
 
 namespace Books.Hub.Application.DTOs.Authors
 {
@@ -37,6 +29,8 @@ namespace Books.Hub.Application.DTOs.Authors
 
         public byte[]? AuthorImage { get; set; }
 
+        public int BooksSold { get; set; }
+        public int SubscribersNumber { get; set; }
 
         [Required]
         [JsonPropertyName("Date Of Brith")]

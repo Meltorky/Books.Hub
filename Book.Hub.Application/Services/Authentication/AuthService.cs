@@ -1,8 +1,12 @@
-﻿using System.Security.Cryptography;
+﻿using System.Net.Mail;
+using System.Security.Cryptography;
+using Books.Hub.Application.Common.Exceptions;
 using Books.Hub.Application.DTOs.Auth;
 using Books.Hub.Application.Identity;
 using Books.Hub.Application.Interfaces.IServices.Authentication;
+using Books.Hub.Application.Mappers;
 using Books.Hub.Domain.Common;
+using Books.Hub.Domain.Enums;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -21,59 +25,36 @@ namespace Books.Hub.Application.Services.Authentication
             _tokenService = tokenService;
         }
 
+
         public async Task<RegisterResultDTO> RegisterAsync(RegisterDTO dto)
         {
             if (await _userManager.FindByEmailAsync(dto.Email) is not null)
-            {
-                return new RegisterResultDTO
-                {
-                    Message = "Email is already Registed !!!"
-                };
-            }
+                throw new DuplicateEmailException("Email is already registied !!");
 
-            if (!await _roleManager.RoleExistsAsync(dto.RoleName))
-            {
-                return new RegisterResultDTO
-                {
-                    Message = "No Role Name Exist With This Name !!!"
-                };
-            }
+            if (!await _roleManager.RoleExistsAsync(dto.RoleName) || dto.RoleName == Roles.Admin.ToString())
+                throw new NotFoundException("InValid role name !!");
 
             var registerResultDTO = new RegisterResultDTO();
 
-            var newUser = new ApplicationUser
-            {
-                Email = dto.Email,
-                UserName = dto.Email,
-                FirstName = dto.FirstName,
-                LastName = dto.LastName,
-                EmailConfirmed = true
-            };
+            var newUser = dto.ToAppUser();
+
+            if (await _userManager.FindByNameAsync(newUser.UserName!) is not null)
+                newUser.UserName = $"{newUser.UserName}0";
 
             var result = await _userManager.CreateAsync(newUser, dto.Password);
 
             if (!result.Succeeded)
             {
-                var errors = string.Empty;
-                foreach (var error in result.Errors)
-                {
-                    errors += $"| {error.Description} |";
-                }
-                registerResultDTO.Message = errors;
-                return registerResultDTO;
+                var errors = string.Join('|', result.Errors.Select(x => x.Description));
+                throw new OperationFailedException(errors);
             }
 
-            registerResultDTO.Email = dto.Email;
-            registerResultDTO.FirstName = dto.FirstName;
-            registerResultDTO.LastName = dto.LastName;
+            registerResultDTO.bindAppUser(newUser);
 
             var addToRoleAsync = await _userManager.AddToRoleAsync(newUser, dto.RoleName);
 
             if (addToRoleAsync.Succeeded)
-            {
                 registerResultDTO.RoleName = dto.RoleName;
-                registerResultDTO.IsAsginedToRole = true;
-            }
 
             return await _tokenService.CreateTokenAsync(newUser, registerResultDTO);
         }
@@ -84,17 +65,14 @@ namespace Books.Hub.Application.Services.Authentication
             var user = await _userManager.FindByEmailAsync(dto.Email);
 
             if (user is null || !await _userManager.CheckPasswordAsync(user, dto.Password))
-            {
-                return new RegisterResultDTO() { Message = "Enter a Valid Email Or Password !!" };
-            }
+                throw new NotFoundException("InValid email or password !!");
 
             var registerResultDTO = new RegisterResultDTO() 
             {
                 Email = dto.Email,
                 FirstName = user.FirstName,
                 LastName = user.LastName,
-                RoleName = _userManager.GetRolesAsync(user).Result.FirstOrDefault()!,
-                IsAsginedToRole = true,               
+                RoleName = string.Join('|',await _userManager.GetRolesAsync(user)),
             };
 
             var result = await _tokenService.CreateTokenAsync(user, registerResultDTO);
@@ -102,53 +80,38 @@ namespace Books.Hub.Application.Services.Authentication
             return result;
         }
 
+
         public async Task<RegisterResultDTO> RefreshTokenAsyncHandler(string token)
         {
 
-            var user = await _userManager.Users.SingleOrDefaultAsync(u => u.RefreshTokens!.Any(t => t.Token == token));
+            var user = await _userManager.Users.SingleOrDefaultAsync(u => u.RefreshTokens!.Any(t => t.Token == token))
+                ?? throw new NotFoundException("Invalid token !!");
 
-            if (user == null)
-            {
-                return new RegisterResultDTO
-                {
-                    Message = "Invalid token"
-                };
-            }
-
-            var refreshToken = user.RefreshTokens!.Single(t => t.Token == token);
-
-            if (!refreshToken.IsActive)
-            {
-                return new RegisterResultDTO
-                {
-                    Message = "InActive token"
-                };
-            }
+            var refreshToken = user.RefreshTokens!
+                .SingleOrDefault(t => t.Token == token && t.IsActive == true)
+                ?? throw new OperationFailedException("InActive token !!");
 
             refreshToken.RevokedOn = DateTime.UtcNow;
 
-
-            var newRefreshToken = GenerateRefreshToken();
-            user.RefreshTokens!.Add(newRefreshToken);
+            user.RefreshTokens!.Add(GenerateRefreshToken());
             await _userManager.UpdateAsync(user);
 
             return await _tokenService.CreateTokenAsync(user , new RegisterResultDTO());
         }
 
+
         public async Task<bool> RevokeTokenAsync(string token)
         {
             var user = await _userManager.Users.SingleOrDefaultAsync(u => u.RefreshTokens!.Any(t => t.Token == token));
 
-            if (user == null)
-                return false;
+            if (user == null) return false;
 
-            var refreshToken = user.RefreshTokens!.Single(t => t.Token == token);
+            var refreshToken = user.RefreshTokens!
+                .SingleOrDefault(t => t.Token == token && t.IsActive == true);
 
-            if (!refreshToken.IsActive)
-                return false;
+            if (refreshToken == null) return false;
 
             refreshToken.RevokedOn = DateTime.UtcNow;
-
             await _userManager.UpdateAsync(user);
 
             return true;
@@ -172,6 +135,5 @@ namespace Books.Hub.Application.Services.Authentication
                 CreatedOn = DateTime.UtcNow
             };
         }
-
     }
 }

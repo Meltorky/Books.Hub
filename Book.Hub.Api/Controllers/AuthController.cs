@@ -20,20 +20,14 @@ namespace Books.Hub.Api.Controllers
         /// Register a new user (Author or Subscriber)
         /// </summary>
         [HttpPost("register")]
-        public async Task<IActionResult> RegisterAsync([FromForm] RegisterDTO register) 
+        public async Task<ActionResult<RegisterResultDTO>> RegisterAsync([FromForm] RegisterDTO register) 
         {
-            if (!ModelState.IsValid || register.RoleName == Roles.Admin.ToString())
-                return BadRequest(ModelState);
-
             var result = await _authService.RegisterAsync(register);
 
             if (!string.IsNullOrEmpty(result.RefreshToken))
                 SetRefrehTokenInTheCookie(result.RefreshToken, result.RefreshTokenExpiresOn);
 
-            if (result.IsAuthenticated) 
-                return Ok(result);
-
-            return BadRequest(result.Message);
+            return Ok(result);
         }
 
 
@@ -41,22 +35,14 @@ namespace Books.Hub.Api.Controllers
         /// Login
         /// </summary>
         [HttpPost("login")]
-        public async Task<IActionResult> LoginAsync([FromBody] LoginDTO login)
+        public async Task<ActionResult<RegisterResultDTO>> LoginAsync([FromBody] LoginDTO login)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
             var result = await _authService.LoginAsync(login);
 
             if (!string.IsNullOrEmpty(result.RefreshToken))
                 SetRefrehTokenInTheCookie(result.RefreshToken, result.RefreshTokenExpiresOn);
 
-            if (result.IsAuthenticated)
-                return Ok(result);
-
-            return BadRequest(result.Message);
+            return Ok(result);
         }
 
 
@@ -66,14 +52,11 @@ namespace Books.Hub.Api.Controllers
         /// <response code="200">returns new access + refresh token, and stores the refresh token in cookie again.</response>
         [Authorize(Roles = nameof(Roles.Admin))]
         [HttpGet("refreshToken")]
-        public async Task<IActionResult> RefreshToken()
+        public async Task<ActionResult<RegisterResultDTO>> RefreshToken()
         {
             var refreshToken = Request.Cookies["refreshToken"];
 
             var result = await _authService.RefreshTokenAsyncHandler(refreshToken ?? string.Empty);
-
-            if (!result.IsAuthenticated)
-                return BadRequest(result);
 
             SetRefrehTokenInTheCookie(result.RefreshToken!, result.RefreshTokenExpiresOn);
 

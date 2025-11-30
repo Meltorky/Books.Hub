@@ -30,4 +30,8 @@
 		<ProjectReference Include="..\Book.Hub.Infrastructure\Books.Hub.Infrastructure.csproj" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <Folder Include="logs\" />
+	</ItemGroup>
+
 </Project>

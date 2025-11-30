@@ -123,7 +123,7 @@ app.UseDeveloperExceptionPage(); // Enable developer exception page to surface i
 app.UseSerilogRequestLogging();  // Logs HTTP requests automatically
 
 // registering the Global Exception Handling Middleware.
-app.UseMiddleware<ExceptionHandlingMiddleware>();
+app.UseMiddleware<ExceptionHandlerMiddleware>();
 
 // Logs how long the request took (in milliseconds) using the ILogger
 app.UseMiddleware<ProfilingMiddleware>();
@@ -140,7 +140,7 @@ app.UseAuthorization();
 app.MapControllers();
 
 // Seed Identity Default Roles and Users
- await app.Services.SeedIdentityAsync();
+ // await app.Services.SeedIdentityAsync();
 
 app.Run();
 

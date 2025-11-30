@@ -8,6 +8,6 @@ namespace Books.Hub.Application.DTOs.Auth
 {
     public class RevokeTokenDTO
     {
-        public string Token { get; set; } = string.Empty;
+        public string? Token { get; set; }
     }
 }

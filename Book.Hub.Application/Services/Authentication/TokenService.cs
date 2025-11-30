@@ -6,14 +6,10 @@ using Books.Hub.Domain.Common;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
-using System;
-using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace Books.Hub.Application.Services.Authentication
 {
@@ -34,19 +30,17 @@ namespace Books.Hub.Application.Services.Authentication
         {
             var userClaims = await _userManager.GetClaimsAsync(user);
             var roles = await _userManager.GetRolesAsync(user);
-            var roleClaims = new List<Claim>();
+            List<Claim> roleClaims = new List<Claim>();
 
             foreach (var role in roles)
-            {
                 roleClaims.Add(new Claim(ClaimTypes.Role, role));
-            }
 
             // Create a list of standard claims for the token
             var claims = new List<Claim>
             {
                 new Claim(JwtRegisteredClaimNames.GivenName, user.UserName!), // User's username
                 new Claim(ClaimTypes.Email, user.Email!), // Email claim (alternative format)
-             }
+            }
             .Union(userClaims) // Combine with user-specific claims
             .Union(roleClaims); // Combine with role claims
 
@@ -59,22 +53,14 @@ namespace Books.Hub.Application.Services.Authentication
                 Issuer = jwtOptions.Issuer,
                 Audience = jwtOptions.Audience,
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtOptions.Key)), SecurityAlgorithms.HmacSha256),
-                Expires = DateTime.Now.AddDays(double.Parse(jwtOptions.LfeTimeInDays))
+                Expires = DateTime.UtcNow.AddDays(double.Parse(jwtOptions.LfeTimeInDays))
             };
 
             var createdToken = tokenHandler.CreateToken(descriptor);
             var token = tokenHandler.WriteToken(createdToken);
-
-            // Map to RegisterResultDTO
-            //dto.Message = "Token created successfully !!";
-            //dto.IsAuthenticated = true;
-            //dto.ExpiresOn = createdToken.ValidTo; // Or descriptor.Expires
-            //dto.Token = token;
-
+        
             // Map to RegisterResultDTO
 
-            dto.Message = "Token created successfully";
-            dto.IsAuthenticated = true;
             dto.Token = token;
             dto.ExpiresOn = createdToken.ValidTo; 
 
@@ -82,7 +68,7 @@ namespace Books.Hub.Application.Services.Authentication
 
             if (user.RefreshTokens is not null && user.RefreshTokens.Any(r => r.IsActive))
             {
-                var activeRefreshToken = user.RefreshTokens.FirstOrDefault(r => r.IsActive);
+                var activeRefreshToken = user.RefreshTokens.SingleOrDefault(r => r.IsActive);
                 dto.RefreshToken = activeRefreshToken!.Token;
                 dto.RefreshTokenExpiresOn = activeRefreshToken.ExpiresOn;
             }

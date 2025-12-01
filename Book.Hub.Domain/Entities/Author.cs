@@ -15,7 +15,7 @@ namespace Books.Hub.Domain.Entities
 
         public DateOnly DateOfBrith { get; set; }
 
-        public byte[]? AuthorImage { get; set; }
+        public string? AuthorImageURL { get; set; }
 
         public bool HaveAccount { get; set; } = false;   // Is Author Have an Account in the Syetem
 

@@ -1,3 +1,6 @@
+using Books.Hub.Application.Interfaces.IServices.Comman;
+using Books.Hub.Application.Services.Comman;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -62,6 +65,9 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(o =>
     o.Password.RequireNonAlphanumeric = true;
     o.Password.RequiredLength = 8;
 }).AddEntityFrameworkStores<AppDbContext>();
+
+// add ImageKit Service 
+builder.Services.AddSingleton<IImageUploadService, ImageUploadService>();
 
 // Add JWT authentication in program.cs
 builder.Services.AddJwtAuthentication(builder.Configuration);

@@ -33,8 +33,8 @@ namespace UnitTests.API.MiddleWars
         {
             // Arrange
             var context = CreateHttpContext(); // Set up HttpContext
-            var fakeLogger = A.Fake<ILogger<ExceptionHandlingMiddleware>>(); // Fake logger
-            var middleware = new ExceptionHandlingMiddleware(
+            var fakeLogger = A.Fake<ILogger<ExceptionHandlerMiddleware>>(); // Fake logger
+            var middleware = new ExceptionHandlerMiddleware(
                 _ => throw new ArgumentException("Invalid argument"), // Simulate service throwing ArgumentException
                 fakeLogger
             );
@@ -55,8 +55,8 @@ namespace UnitTests.API.MiddleWars
         {
             // Arrange
             var context = CreateHttpContext();
-            var fakeLogger = A.Fake<ILogger<ExceptionHandlingMiddleware>>();
-            var middleware = new ExceptionHandlingMiddleware(
+            var fakeLogger = A.Fake<ILogger<ExceptionHandlerMiddleware>>();
+            var middleware = new ExceptionHandlerMiddleware(
                 _ => throw new NotFoundException("Author not found"),
                 fakeLogger
             );
@@ -77,8 +77,8 @@ namespace UnitTests.API.MiddleWars
         {
             // Arrange
             var context = CreateHttpContext();
-            var fakeLogger = A.Fake<ILogger<ExceptionHandlingMiddleware>>();
-            var middleware = new ExceptionHandlingMiddleware(
+            var fakeLogger = A.Fake<ILogger<ExceptionHandlerMiddleware>>();
+            var middleware = new ExceptionHandlerMiddleware(
                 _ => throw new OperationCanceledException(),
                 fakeLogger
             );
@@ -99,8 +99,8 @@ namespace UnitTests.API.MiddleWars
         {
             // Arrange
             var context = CreateHttpContext();
-            var fakeLogger = A.Fake<ILogger<ExceptionHandlingMiddleware>>();
-            var middleware = new ExceptionHandlingMiddleware(
+            var fakeLogger = A.Fake<ILogger<ExceptionHandlerMiddleware>>();
+            var middleware = new ExceptionHandlerMiddleware(
                 _ => throw new Exception("Something went wrong"), // Unexpected error
                 fakeLogger
             );
@@ -130,8 +130,8 @@ namespace UnitTests.API.MiddleWars
                 return Task.CompletedTask;
             };
 
-            var fakeLogger = A.Fake<ILogger<ExceptionHandlingMiddleware>>();
-            var middleware = new ExceptionHandlingMiddleware(next, fakeLogger);
+            var fakeLogger = A.Fake<ILogger<ExceptionHandlerMiddleware>>();
+            var middleware = new ExceptionHandlerMiddleware(next, fakeLogger);
 
             // Act
             await middleware.InvokeAsync(context);

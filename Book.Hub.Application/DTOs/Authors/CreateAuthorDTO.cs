@@ -5,6 +5,8 @@ using System.Linq;
 using System.Text;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
+using Books.Hub.Application.Attributes;
+using Books.Hub.Application.Constants;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Swashbuckle.AspNetCore.Annotations; // Add this line
@@ -26,15 +28,17 @@ namespace Books.Hub.Application.DTOs.Authors
         [Required]
         [MaxLength(300)]
         public string Bio { get; set; } = string.Empty;
-        
 
+
+        [ImageValidation(ImageFileOptions.MaxSizeInMB, ImageFileOptions.AllowedExtentions)]
+        [SwaggerSchema(Description = ImageFileOptions.ErrorMessage)]
         public IFormFile? AuthorImageFile { get; set; }
 
 
         [SwaggerSchema(ReadOnly = true)] // Hides it from Swagger input
         [JsonIgnore] // Prevents it from being included in API requests
         [BindNever] // Ensures it's never bound from a request
-        public byte[]? AuthorImage { get; set; }
+        public string? AuthorImageURL { get; set; }
 
 
         [Required]

@@ -18,7 +18,7 @@ namespace Books.Hub.Application.Mappers
                 BooksSold = model.Books.Sum(b => b.TotalCopiesSold),
                 SubscribersNumber = model.AuthorSubscribers.Count(),
                 ApplicationAuthorId = model.ApplicationAuthorId,
-                AuthorImage = model.AuthorImage?.Take(50).ToArray(),  // .Take(50) => this is just for simplification while production, Not used in the real cases
+                AuthorImageURL = model.AuthorImageURL,
                 Books = model.Books.Select(x => x.ToBookDTO()).ToList()
             };
         }

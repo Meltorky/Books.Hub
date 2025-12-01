@@ -27,7 +27,7 @@ namespace Books.Hub.Application.DTOs.Authors
         [Required]
         public bool IsActive { get; set; }
 
-        public byte[]? AuthorImage { get; set; }
+        public string? AuthorImageURL { get; set; }
 
         public int BooksSold { get; set; }
         public int SubscribersNumber { get; set; }

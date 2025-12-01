@@ -3,6 +3,7 @@ using Books.Hub.Application.DTOs.Authors;
 using Books.Hub.Application.Identity;
 using Books.Hub.Application.Interfaces.IRepositories;
 using Books.Hub.Application.Interfaces.IServices;
+using Books.Hub.Application.Interfaces.IServices.Comman;
 using Books.Hub.Application.Mappers;
 using Books.Hub.Domain.Common;
 using Books.Hub.Domain.Entities;
@@ -16,10 +17,12 @@ namespace Books.Hub.Application.Services
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly UserManager<ApplicationUser> _userManager;
-        public AuthorService(IUnitOfWork unitOfWork, UserManager<ApplicationUser> userManager)
+        private readonly IImageUploadService _image;
+        public AuthorService(IUnitOfWork unitOfWork, UserManager<ApplicationUser> userManager, IImageUploadService image)
         {
             _unitOfWork = unitOfWork;
             _userManager = userManager;
+            _image = image;
         }
 
 
@@ -79,52 +82,28 @@ namespace Books.Hub.Application.Services
         }
 
 
-        // create author profile by Admin
-        public async Task<AuthorDTO> CreateAuthorProfile(CreateAuthorDTO dto, CancellationToken token)
+        // create author profile by Author User / Admin
+        public async Task<AuthorDTO> CreateAuthorProfile(string? userId ,CreateAuthorDTO dto, CancellationToken token)
         {
+            if (userId is not null)
+               if(await _userManager.FindByIdAsync(userId) is null)
+                    throw new NotFoundException($"No User exist with id: {userId}");
+
             // handle Author profile cover
             if (dto.AuthorImageFile is not null)
-                dto.AuthorImage = await HandleImageFiles(dto.AuthorImageFile);
+                dto.AuthorImageURL = await _image
+                    .UploadAsync(dto.AuthorImageFile,dto.Name.Trim().ToLowerInvariant(),true);
 
             var newProfile = new Author()
             {
                 Name = dto.Name,
-                AuthorImage = dto.AuthorImage,
+                AuthorImageURL = dto.AuthorImageURL,
                 Bio = dto.Bio,
                 Nationality = dto.Nationality,
                 DateOfBrith = dto.DateOfBrith,
-                HaveAccount = false,
-                IsActive = false,
-                ApplicationAuthorId = null             
-            };
-
-            var author = await _unitOfWork.Authors.AddAsync(newProfile, token);
-            return author.ToAuthorDTO();
-        }
-
-
-        // create author profile by Author User
-        public async Task<AuthorDTO> CreateAuthorProfile(string id ,CreateAuthorDTO dto, CancellationToken token)
-        {
-            var authorUser = await _userManager.FindByIdAsync(id);
-
-            if (authorUser is null)
-                throw new NotFoundException($"No Author User exist with id: {id}");
-
-            // handle Author profile cover
-            if (dto.AuthorImageFile is not null)
-                dto.AuthorImage = await HandleImageFiles(dto.AuthorImageFile);
-
-            var newProfile = new Author()
-            {
-                Name = dto.Name,
-                AuthorImage = dto.AuthorImage,
-                Bio = dto.Bio,
-                Nationality = dto.Nationality,
-                DateOfBrith = dto.DateOfBrith,
-                HaveAccount = true,
-                IsActive = true,
-                ApplicationAuthorId = id
+                HaveAccount = userId is null ? false : true,
+                IsActive = userId is null ? false : true,
+                ApplicationAuthorId = userId
             };
 
             var author = await _unitOfWork.Authors.AddAsync(newProfile, token);

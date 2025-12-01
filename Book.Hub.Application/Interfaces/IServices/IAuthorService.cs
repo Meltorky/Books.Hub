@@ -14,8 +14,7 @@ namespace Books.Hub.Application.Interfaces.IServices
         Task<AuthorDTO> SimpleGetByIdAsync(int Id, CancellationToken token);
         Task<AuthorDTO> GetByIdAsync(int Id, CancellationToken token);
         Task<List<AuthorDTO>> GetAllAsync(AdvancedSearch search, CancellationToken token);
-        Task<AuthorDTO> CreateAuthorProfile(CreateAuthorDTO dto , CancellationToken token);
-        Task<AuthorDTO> CreateAuthorProfile(string id , CreateAuthorDTO dto , CancellationToken token);
+        Task<AuthorDTO> CreateAuthorProfile(string? id , CreateAuthorDTO dto , CancellationToken token);
         Task<AuthorDTO> EditAsync(EditAuthorDTO dto ,CancellationToken token);
         Task<bool> DeleteAsync(int Id, CancellationToken token);
     }

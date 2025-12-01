@@ -86,52 +86,32 @@ namespace Books.Hub.Api.Controllers
         [ProducesResponseType(StatusCodes.Status201Created)]
         public async Task<IActionResult> CreateAuthorProfile([FromForm] CreateAuthorDTO dto, CancellationToken token)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
-            // Validate the uploaded image
-            if (dto.AuthorImage is not null && !ImagesValidator.UploadedImagesValidator(dto.AuthorImageFile!, _options.Value))
-            {
-                return BadRequest($"Only Accept |{_options.Value.AllowedExtentions.Replace(',', '|')}| with {_options.Value.MaxSizeAllowedInBytes / 1024 / 1024} MB");
-            }
-
-            // Service throws ArgumentException or others on validation errors -> Global middleware handles them
-            var addedAuthor = await _authorService.CreateAuthorProfile(dto, token);
+            var addedAuthor = await _authorService.CreateAuthorProfile(null, dto, token);
 
             return CreatedAtAction(
                 nameof(GetByIdAsync),
-                new { id = addedAuthor.Id },
+                new { id = addedAuthor.Id, token = token },
                 addedAuthor);
         }
 
 
 
         /// <summary>
-        /// Create Author profile (by Author)
+        /// Create Author profile (by User)
         /// </summary>
-        /// <param name="id">The unique identifier for the Author User Account.</param>
-        /// <param name="dto">The data transfer object containing the details for creating the author profile.</param>
-        /// <param name="token">The cancellation token to cancel the operation.</param>
-        [HttpPost("author/create-profile")]
+        /// <param name="id">The unique identifier for the User Account.</param>
+        /// <param name="dto"></param>
+        /// <param name="token"></param>
+        [HttpPost("author/create-profile/{id}")]
         [ProducesResponseType(StatusCodes.Status201Created)]
         public async Task<IActionResult> CreateAuthorProfile(
             [FromRoute] string id,
             [FromForm] CreateAuthorDTO dto,
             CancellationToken token)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
-            // Validate the uploaded image
-            if (dto.AuthorImage is not null && !ImagesValidator.UploadedImagesValidator(dto.AuthorImageFile!, _options.Value))
-            {
-                return BadRequest($"Only Accept |{_options.Value.AllowedExtentions.Replace(',', '|')}| with {_options.Value.MaxSizeAllowedInBytes / 1024 / 1024} MB");
-            }
-
-            // Service throws ArgumentException or others on validation errors -> Global middleware handles them
             var addedAuthor = await _authorService.CreateAuthorProfile(id, dto, token);
 
-            return CreatedAtRoute(
+            return CreatedAtAction(
                 nameof(GetByIdAsync),
                 new { id = addedAuthor.Id },
                 addedAuthor);

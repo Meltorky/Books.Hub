@@ -28,7 +28,7 @@ namespace Books.Hub.Infrastructure.Repositories
                     Bio = a.Bio,
                     DateOfBrith = a.DateOfBrith,
                     ApplicationAuthorId = a.ApplicationAuthorId,
-                    AuthorImage = a.AuthorImage,
+                    AuthorImageURL = a.AuthorImageURL,
                     IsActive = a.IsActive,
                     BooksSold = a.Books.Sum(b => b.TotalCopiesSold),
                     SubscribersNumber = a.AuthorSubscribers.Count(),

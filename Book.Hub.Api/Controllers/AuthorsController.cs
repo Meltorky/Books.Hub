@@ -25,9 +25,9 @@ namespace Books.Hub.Api.Controllers
 
 
         /// <summary>
-        /// Get specific Author details simple (admin dashboard)
+        /// Get specific Author details simple without Books (admin dashboard)
         /// </summary>
-        [HttpGet("{id}")]
+        [HttpGet("{id}", Name = "SimpleGetByIdAsync")]
         public async Task<IActionResult> SimpleGetByIdAsync([FromRoute] int id, CancellationToken token)
         {
             var author = await _authorService.SimpleGetByIdAsync(id, token);
@@ -88,10 +88,11 @@ namespace Books.Hub.Api.Controllers
         {
             var addedAuthor = await _authorService.CreateAuthorProfile(null, dto, token);
 
-            return CreatedAtAction(
-                nameof(GetByIdAsync),
-                new { id = addedAuthor.Id, token = token },
-                addedAuthor);
+            return CreatedAtRoute(
+                nameof(SimpleGetByIdAsync),
+                new { id = addedAuthor.Id },
+                addedAuthor
+            );
         }
 
 
@@ -111,16 +112,17 @@ namespace Books.Hub.Api.Controllers
         {
             var addedAuthor = await _authorService.CreateAuthorProfile(id, dto, token);
 
-            return CreatedAtAction(
-                nameof(GetByIdAsync),
+            return CreatedAtRoute(
+                nameof(SimpleGetByIdAsync),
                 new { id = addedAuthor.Id },
-                addedAuthor);
+                addedAuthor
+            );
         }
 
 
 
         /// <summary>
-        /// edit Author Profile by Admin/Author
+        /// Edit Author Profile by Admin/Author
         /// </summary>
         [HttpPut("edit")]
         public async Task<IActionResult> EditAuthorAsync([FromForm] EditAuthorDTO dto, CancellationToken token)
@@ -133,8 +135,7 @@ namespace Books.Hub.Api.Controllers
                 return BadRequest($"Only Accept {_options.Value.AllowedExtentions.Replace(',', ' ')} with {_options.Value.MaxSizeAllowedInBytes / 1024 / 1024} MB");
             }
 
-            var updatedAuthor = await _authorService.EditAsync(dto, token);
-            return Ok(updatedAuthor);
+            return Ok(await _authorService.EditAsync(dto, token));
         }
 
 
@@ -142,7 +143,7 @@ namespace Books.Hub.Api.Controllers
         /// <summary>
         /// Delete AuthorProfile by Addmin/Author
         /// </summary>
-        [Authorize(Roles = nameof(Roles.Admin))]
+        //[Authorize(Roles = nameof(Roles.Admin))]
         [HttpDelete("delete/{Id}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         public async Task<IActionResult> DeleteAsync([FromRoute] int Id, CancellationToken token)
@@ -150,6 +151,5 @@ namespace Books.Hub.Api.Controllers
             await _authorService.DeleteAsync(Id, token);
             return NoContent();
         }
-
     }
 }

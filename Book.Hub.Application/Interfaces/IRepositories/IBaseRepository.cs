@@ -5,8 +5,10 @@ namespace Books.Hub.Application.Interfaces.IRepositories
 {
     public interface IBaseRepository<TEntity> where TEntity : class
     {
-        Task<TEntity?> GetById(int id, CancellationToken token);
+        Task<TEntity?> GetByIdFast(int id, CancellationToken token);
 
+        Task<TEntity?> GetById(int id, CancellationToken token, params Func<IQueryable<TEntity>, IQueryable<TEntity>>[] includes);
+        
         Task<TEntity?> GetById(int id, QuerySpecification<TEntity> spec, CancellationToken token);
 
 
@@ -64,7 +66,7 @@ namespace Books.Hub.Application.Interfaces.IRepositories
 
         Task<TEntity> AddAsync(TEntity entity, CancellationToken token);
 
-        Task<bool> EditAsync(TEntity entity, CancellationToken token);
+        Task<TEntity> EditAsync(TEntity entity, CancellationToken token);
 
         Task<bool> DeleteAsync(TEntity entity, CancellationToken token);
 

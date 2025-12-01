@@ -13,7 +13,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Books.Hub.Application.Services
 {
-    public class AuthorService : BaseService , IAuthorService
+    public class AuthorService : BaseService, IAuthorService
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly UserManager<ApplicationUser> _userManager;
@@ -24,6 +24,7 @@ namespace Books.Hub.Application.Services
             _userManager = userManager;
             _image = image;
         }
+
 
 
         // get all authors
@@ -42,26 +43,13 @@ namespace Books.Hub.Application.Services
                 _ => a => a.Name,
             };
 
-            if(search.searchText is not null)
+            if (search.searchText is not null)
                 spec.AddCriteria(a => a.Name.Contains(search.searchText));
 
             var authors = await _unitOfWork.Authors.GetAll(spec, token);
             return authors.Select(a => a.ToAuthorDTO()).ToList();
         }
 
-
-        // get author by id
-        public async Task<AuthorDTO> GetByIdAsync(int Id,CancellationToken token)
-        {
-            var spec = new QuerySpecification<Author>();
-            spec.AddInclude(q => q.Include(a => a.Books));
-            spec.AddInclude(q => q.Include(a => a.AuthorSubscribers));
-
-            var author = await _unitOfWork.Authors.GetById(Id,spec, token)
-                ?? throw new NotFoundException($"Author with ID {Id} was not found.");
-
-            return author.ToAuthorDTO();
-        }
 
 
         // get author by id without Includes
@@ -74,6 +62,22 @@ namespace Books.Hub.Application.Services
         }
 
 
+
+        // get author by id
+        public async Task<AuthorDTO> GetByIdAsync(int Id, CancellationToken token)
+        {
+            var spec = new QuerySpecification<Author>();
+            spec.AddInclude(q => q.Include(a => a.Books));
+            spec.AddInclude(q => q.Include(a => a.AuthorSubscribers));
+
+            var author = await _unitOfWork.Authors.GetById(Id, spec, token)
+                ?? throw new NotFoundException($"Author with ID {Id} was not found.");
+
+            return author.ToAuthorDTO();
+        }
+
+
+
         // get author by id optimized
         public async Task<AuthorDTO> GetByIdAsync1(int Id, CancellationToken token)
         {
@@ -82,17 +86,18 @@ namespace Books.Hub.Application.Services
         }
 
 
+
         // create author profile by Author User / Admin
-        public async Task<AuthorDTO> CreateAuthorProfile(string? userId ,CreateAuthorDTO dto, CancellationToken token)
+        public async Task<AuthorDTO> CreateAuthorProfile(string? userId, CreateAuthorDTO dto, CancellationToken token)
         {
             if (userId is not null)
-               if(await _userManager.FindByIdAsync(userId) is null)
+                if (await _userManager.FindByIdAsync(userId) is null)
                     throw new NotFoundException($"No User exist with id: {userId}");
 
             // handle Author profile cover
             if (dto.AuthorImageFile is not null)
                 dto.AuthorImageURL = await _image
-                    .UploadAsync(dto.AuthorImageFile,dto.Name.Trim().ToLowerInvariant(),true);
+                    .UploadAsync(dto.AuthorImageFile, dto.Name.Trim().ToLowerInvariant(), true);
 
             var newProfile = new Author()
             {
@@ -112,30 +117,38 @@ namespace Books.Hub.Application.Services
 
 
 
-        public async Task<AuthorDTO> EditAsync(EditAuthorDTO dto , CancellationToken token)
+        // Edit author
+        public async Task<AuthorDTO> EditAsync(EditAuthorDTO dto, CancellationToken token)
         {
-            var author = await _unitOfWork.Authors.GetById(dto.Id , token);
-            if (author is null)
-                throw new NotFoundException($"No Author Profile exist with id: {dto.Id}");
+            var author = await _unitOfWork.Authors.GetByIdFast(dto.Id, token)
+                ?? throw new NotFoundException($"No Author Profile exist with id: {dto.Id}");
 
+            // handle Author profile cover
             if (dto.AuthorImageFile is not null)
-                dto.AuthorImage = await HandleImageFiles(dto.AuthorImageFile);
+                author.AuthorImageURL = await _image
+                    .UploadAsync(dto.AuthorImageFile, dto.Name.Trim().ToLowerInvariant(), true);
 
-            GenericMapDtoToEntity(dto, author);
+            author.Name = dto.Name;
+            author.Bio = dto.Bio;
+            author.Nationality = dto.Nationality;
+            author.IsActive = dto.IsActive;
+            author.DateOfBrith = dto.DateOfBrith;
 
-            await _unitOfWork.Authors.EditAsync(author , token);
-            return author.ToAuthorDTO();
+            return (await _unitOfWork.Authors.EditAsync(author, token)).ToAuthorDTO();
         }
 
 
 
-        public async Task<bool> DeleteAsync(int Id , CancellationToken token)
+        // delete author
+        public async Task<bool> DeleteAsync(int Id, CancellationToken token)
         {
-            var author = await _unitOfWork.Authors.GetById(Id , token);
-            if (author is null)
-                throw new NotFoundException($"No Author Profile exist with id: {Id}");
+            var author = await _unitOfWork.Authors.GetById(Id, token, a => a.Include(a => a.Books))
+                ?? throw new NotFoundException($"No Author Profile exist with id: {Id}");
 
-            return await _unitOfWork.Authors.DeleteAsync(author , token);
+            if (author.Books.Count() > 0)
+                throw new OperationCanceledException($"You should remove all related books first !!");
+
+            return await _unitOfWork.Authors.DeleteAsync(author, token);
         }
     }
 }

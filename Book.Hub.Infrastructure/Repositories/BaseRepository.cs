@@ -18,11 +18,26 @@ namespace Books.Hub.Infrastructure.Repositories
 
 
 
-
         // Get specific Entity with Id for edit and Delete
-        public async Task<TEntity?> GetById(int id, CancellationToken token)
+        public async Task<TEntity?> GetByIdFast(int id, CancellationToken token)
         {
             return await _context.Set<TEntity>().FindAsync(id);
+        }
+
+
+
+        // Get specific Entity with Id with includes
+        public async Task<TEntity?> GetById(int id, CancellationToken token, params Func<IQueryable<TEntity>, IQueryable<TEntity>>[] includes)
+        {
+            IQueryable<TEntity> query = _context.Set<TEntity>();
+
+            if (includes is not null && includes.Any())
+                foreach (var include in includes)
+                    query = include(query);
+
+            return await query
+                .AsNoTracking()
+                .SingleOrDefaultAsync(e => EF.Property<int>(e, "Id") == id, token);
         }
 
 
@@ -112,10 +127,11 @@ namespace Books.Hub.Infrastructure.Repositories
 
 
 
-        public async Task<bool> EditAsync(TEntity model, CancellationToken token)
+        public async Task<TEntity> EditAsync(TEntity model, CancellationToken token)
         {
             _context.Set<TEntity>().Update(model);
-            return await _context.SaveChangesAsync(token) > 0;
+            await _context.SaveChangesAsync(token);
+            return model;
         }
 
 

@@ -17,6 +17,8 @@ namespace Books.Hub.Domain.Entities
 
         public string? AuthorImageURL { get; set; }
 
+        public string? AuthorImageId { get; set; }
+
         public bool HaveAccount { get; set; } = false;   // Is Author Have an Account in the Syetem
 
         public string? ApplicationAuthorId { get; set; }

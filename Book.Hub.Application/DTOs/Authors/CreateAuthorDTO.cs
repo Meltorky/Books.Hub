@@ -30,7 +30,7 @@ namespace Books.Hub.Application.DTOs.Authors
         public string Bio { get; set; } = string.Empty;
 
 
-        [ImageValidation(ImageFileOptions.MaxSizeInMB, ImageFileOptions.AllowedExtentions)]
+        [FileValidation(ImageFileOptions.MaxSizeInMB, ImageFileOptions.AllowedExtentions)]
         [SwaggerSchema(Description = ImageFileOptions.ErrorMessage)]
         public IFormFile? AuthorImageFile { get; set; }
 

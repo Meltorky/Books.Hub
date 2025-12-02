@@ -21,6 +21,8 @@ namespace Books.Hub.Domain.Entities
         public int TotalCopiesSold { get; set; }
         public string? BookCoverURL { get; set; }
         public string? BookFileURL { get; set; }
+        public string? BookCoverId { get; set; }
+        public string? BookFileId { get; set; }
 
         // Navigation Properties
 

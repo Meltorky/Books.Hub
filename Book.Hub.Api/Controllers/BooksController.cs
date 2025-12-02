@@ -1,7 +1,6 @@
 ﻿using Books.Hub.Api.Validators;
 using Books.Hub.Application.DTOs.Books;
 using Books.Hub.Domain.Common;
-using Books.Hub.Domain.Entities;
 using Books.Hub.Domain.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -77,28 +76,18 @@ namespace Books.Hub.Api.Controllers
         }
 
 
-        
-        // [HttpPost("add")]
-        //[ProducesResponseType(StatusCodes.Status201Created)]
-        //public async Task<IActionResult> CreateAuthorProfile([FromForm] CreateBookDTO dto, CancellationToken cancellationToken)
-        //{
-        //    if (!ModelState.IsValid)
-        //        return BadRequest(ModelState);
 
-        //    // Validate the uploaded image
-        //    if (dto.BookCoverFile is not null && !ImagesValidator.UploadedImagesValidator(dto.BookCoverFile!, _options.Value))
-        //    {
-        //        return BadRequest($"Only Accept |{_options.Value.AllowedExtentions.Replace(',', '|')}| with {_options.Value.MaxSizeAllowedInBytes / 1024 / 1024} MB");
-        //    }
+        [HttpPost("add")]
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        public async Task<IActionResult> CreateAysnc([FromForm] CreateBookDTO dto, CancellationToken cancellationToken)
+        {
+            var created = await _bookService.CreateBookAsync(dto, cancellationToken);
 
-        //    // Service throws ArgumentException or others on validation errors -> Global middleware handles them
-        //    var created = await _bookService.CreateBookAsync(dto, cancellationToken);
-
-        //    return CreatedAtAction(
-        //        nameof(GetBookByIdAsync),      // action
-        //        new { id = created.Id },       // route values
-        //        created);                      // response body
-        //}
+            return CreatedAtAction(
+                nameof(GetBookDetails),
+                new { id = created.Id },
+                created);
+        }
 
 
 

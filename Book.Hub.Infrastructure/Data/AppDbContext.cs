@@ -58,6 +58,14 @@ namespace Books.Hub.Infrastructure.Data
                 .OnDelete(DeleteBehavior.Restrict);
 
 
+            // Create table non-clusterd Indexes
+            
+            modelBuilder.Entity<Book>()
+                .HasIndex(b => b.Name)
+                .IsUnique();
+
+            // Seed data
+
             modelBuilder.Entity<Category>()
             .HasData(new Category[]
             {

@@ -4,6 +4,7 @@ using Books.Hub.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Books.Hub.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251202115303_index-book-name")]
+    partial class indexbookname
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -112,9 +115,6 @@ namespace Books.Hub.Infrastructure.Migrations
                     b.Property<string>("ApplicationAuthorId")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("AuthorImageId")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("AuthorImageURL")
                         .HasColumnType("nvarchar(max)");
 
@@ -176,13 +176,7 @@ namespace Books.Hub.Infrastructure.Migrations
                     b.Property<int>("AuthorId")
                         .HasColumnType("int");
 
-                    b.Property<string>("BookCoverId")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("BookCoverURL")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("BookFileId")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("BookFileURL")

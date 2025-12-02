@@ -6,7 +6,7 @@ namespace Books.Hub.Application.Mappers
 {
     public static class BooksMapper
     {
-        public static Book CreateBookDTOtoBook(this CreateBookDTO dto) 
+        public static Book ToBook(this CreateBookDTO dto) 
         {
             return new Book()
             {
@@ -19,6 +19,10 @@ namespace Books.Hub.Application.Mappers
                 TotalCopiesSold = dto.TotalCopiesSold,
                 AuthorId = dto.AuthorId,
                 PublishedDate = dto.PublishedDate,
+                BookCoverURL = dto.BookCoverURL,
+                BookCoverId = dto.BookCoverID,
+                BookFileURL = dto.BookFileURL,
+                BookFileId = dto.BookFileID,
                 BookCategories = dto.BookCategoryIDs.Select(i => new BookCategory { CategoryId = i}).ToList()
             };
         }

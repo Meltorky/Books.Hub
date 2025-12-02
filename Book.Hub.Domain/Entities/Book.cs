@@ -19,7 +19,8 @@ namespace Books.Hub.Domain.Entities
         public double Price { get; set; }
         public bool IsAvailable { get; set; } = true;
         public int TotalCopiesSold { get; set; }
-        public byte[]? BookCover { get; set; }
+        public string? BookCoverURL { get; set; }
+        public string? BookFileURL { get; set; }
 
         // Navigation Properties
 

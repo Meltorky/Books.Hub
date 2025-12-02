@@ -3,7 +3,6 @@ using Books.Hub.Application.Interfaces.IRepositories;
 using Books.Hub.Domain.Entities;
 using Books.Hub.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
-using Books.Hub.Application.DTOs.Books;
 using Books.Hub.Application.Mappers;
 
 namespace Books.Hub.Infrastructure.Repositories

@@ -2,9 +2,6 @@
 using Books.Hub.Api.Validators;
 using Books.Hub.Application.DTOs.Authors;
 using Books.Hub.Domain.Common;
-using Books.Hub.Domain.Entities;
-using Books.Hub.Domain.Enums;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 
@@ -20,6 +17,40 @@ namespace Books.Hub.Api.Controllers
         {
             _authorService = authorService;
             _options = options;
+        }
+
+
+
+        /// <summary>
+        /// Search Authors by Name with pagination (catalog page) 
+        /// </summary>
+        /// <param name="token"></param>
+        /// <param name="search">max 100 char</param>
+        /// <param name="pageNumber">Range from 1</param>
+        /// <param name="pageSize">Range from 1 to 100</param>
+        /// <param name="sort">select one "trending/popular/name"</param>
+        /// <param name="isDesc"></param>
+        /// <response code="200">Returns the requested paged list of Authors</response>
+        /// <response code="404">If no Authors matching the search criteria are found</response>
+        [HttpGet("All")]
+        public async Task<IActionResult> GetAllAsync(
+            CancellationToken token,
+            [FromQuery] string? search,
+            [FromQuery][Range(1, int.MaxValue)] int pageNumber = 1,
+            [FromQuery][Range(1, 100)] int pageSize = 20,
+            [FromQuery] string sort = "trending",
+            [FromQuery] bool isDesc = true)
+        {
+            AdvancedSearch advancedSearch = new AdvancedSearch
+            {
+                searchText = search,
+                pageNumber = pageNumber,
+                resultsPerPage = pageSize,
+                SortedBy = sort,
+                IsDesc = isDesc,
+            };
+            var authors = await _authorService.GetAllAsync(advancedSearch, token);
+            return Ok(authors);
         }
 
 
@@ -44,37 +75,6 @@ namespace Books.Hub.Api.Controllers
         {
             var author = await _authorService.GetByIdAsync(id, token);
             return Ok(author);
-        }
-
-
-
-        /// <summary>
-        /// Search Authors by Name with pagination (catalog page) 
-        /// </summary>
-        /// <param name="token"></param>
-        /// <param name="search">max 100 char</param>
-        /// <param name="pageNumber">Range from 1</param>
-        /// <param name="pageSize">Range from 1 to 100</param>
-        /// <param name="sort">select one "trending/popular/name"</param>
-        /// <returns></returns>
-        [HttpGet("All")]
-        public async Task<IActionResult> GetAllAsync(
-            CancellationToken token,
-            [FromQuery] string? search,
-            [FromQuery][Range(1, int.MaxValue)] int pageNumber = 1,
-            [FromQuery][Range(1, 100)] int pageSize = 20,
-            [FromQuery] string sort = "trending")
-        {
-            AdvancedSearch advancedSearch = new AdvancedSearch 
-            {
-                searchText = search,
-                pageNumber = pageNumber,
-                resultsPerPage = pageSize,
-                SortedBy = sort,
-                IsDesc = true,
-            };
-            var authors = await _authorService.GetAllAsync(advancedSearch,token);
-            return Ok(authors);
         }
 
 

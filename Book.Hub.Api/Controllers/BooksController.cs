@@ -1,12 +1,9 @@
 ﻿using Books.Hub.Api.Validators;
 using Books.Hub.Application.DTOs.Books;
-using Books.Hub.Application.Interfaces.IServices;
-using Books.Hub.Application.Options;
 using Books.Hub.Domain.Common;
 using Books.Hub.Domain.Entities;
 using Books.Hub.Domain.Enums;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using System.ComponentModel.DataAnnotations;
@@ -28,94 +25,41 @@ namespace Books.Hub.Api.Controllers
 
 
         /// <summary>
-        /// Get all books with full details (admin dashboard)
+        /// Search Books by Name with pagination 
         /// </summary>
-        [HttpGet("full-details")]
-        public async Task<IActionResult> GetFullDetails(CancellationToken token)
-        {
-            var spec = new QuerySpecification<Book>();
-
-            spec.AddInclude(q => q
-                .Include(b => b.Author));
-
-            spec.AddInclude(q => q
-                .Include(b => b.BookCategories)
-                .ThenInclude(bc => bc.Category));
-
-            var books = await _bookService.GetAllAsync(spec, token);
-            return Ok(books);
-        }
-
-
-
-        /// <summary>
-        /// Search books by title with pagination (catalog page)
-        /// </summary>
-        [HttpGet("search")]
-        public async Task<IActionResult> SearchBooks(
+        /// <param name="token"></param>
+        /// <param name="search">max 100 char</param>
+        /// <param name="pageNumber">Range from 1</param>
+        /// <param name="pageSize">Range from 1 to 100</param>
+        /// <param name="sort">select one "best-seller/top-rated/name/price/recentley-added"</param>
+        /// <param name="isDesc"></param>
+        /// <param name="categoryId"></param>
+        /// <param name="minPrice"></param>
+        /// <param name="maxPrice"></param>
+        /// <response code="200">Returns the requested paged list of Books</response>
+        /// <response code="404">If no Book matching the search criteria are found.</response>
+        [HttpGet("all")]
+        public async Task<IActionResult> GetAllAsync(
             CancellationToken token,
-            [FromQuery] string query,
-            [FromQuery][Range(1, int.MaxValue, ErrorMessage = "Page must be greater than 0")] int page = 1,
-            [FromQuery][Range(1, 100, ErrorMessage = "Page size must be between 1 and 100")] int pageSize = 10)
+            [FromQuery] string? search,
+            [FromQuery] int? categoryId,
+            [FromQuery] double? minPrice,
+            [FromQuery] double? maxPrice,
+            [FromQuery][Range(1, int.MaxValue)] int pageNumber = 1,
+            [FromQuery][Range(1, 100)] int pageSize = 20,
+            [FromQuery] string sort = "best-seller",
+            [FromQuery] bool isDesc = true)
         {
-            var spec = new QuerySpecification<Book>();
-            spec.AddCriteria(b => b.Name.Contains(query));
-            //spec.Skip = (page - 1) * pageSize;
-            //spec.Take = pageSize;
-            spec.OrderBy = b => b.Name;
-
-            var books = await _bookService.GetAllAsync(spec, token);
-            return Ok(books);
-        }
-
-
-
-        /// <summary>
-        /// Get all books by category (sort: name/date/price) (category page) 
-        /// </summary>
-        [HttpGet("category/{categoryId}")]
-        public async Task<IActionResult> GetByCategory(
-            int categoryId,
-            CancellationToken token,
-            [FromQuery] string sort = "name",
-            [FromQuery] bool desc = false)
-        {
-            var spec = new QuerySpecification<Book>();
-            spec.AddCriteria(b => b.BookCategories.Any(bc => bc.CategoryId == categoryId));
-            spec.AddInclude(b => b.Include(a => a.Author));
-            spec.AddInclude(b => b.Include(a => a.BookCategories).ThenInclude(c => c.Category));
-
-            // Dynamic sorting
-            spec.OrderBy = sort switch
+            AdvancedSearch advancedSearch = new AdvancedSearch
             {
-                "price" => b => b.Price,
-                "date" => b => b.PublishedDate,
-                _ => b => b.Name
+                searchText = search,
+                pageNumber = pageNumber,
+                resultsPerPage = pageSize,
+                SortedBy = sort,
+                IsDesc = isDesc,
             };
-            spec.OrderByDescending = desc;
-
-            var books = await _bookService.GetAllAsync(spec, token);
-            return Ok(books);
-        }
-
-
-
-        /// <summary>
-        /// Scenario 4: Get featured books (home page)
-        /// </summary>
-        [HttpGet("featured")]
-        public async Task<IActionResult> GetFeaturedBooks(CancellationToken token)
-        {
-            var spec = new QuerySpecification<Book>();
-            spec.AddCriteria(b => b.TotalCopiesSold > 0);
-            //spec.Take = 10;
-            spec.OrderBy = b => b.Rating;
-            spec.OrderByDescending = true;
-            spec.AddInclude(b => b.Include(a => a.Author));
-            spec.AddInclude(b => b.Include(a => a.BookCategories).ThenInclude(c => c.Category));
-
-            var books = await _bookService.GetAllAsync(spec, token);
-            return Ok(books);
+            var authors = await _bookService.GetAllAsync(advancedSearch, categoryId, minPrice, maxPrice, token);
+            return Ok(authors);
         }
 
 
@@ -123,106 +67,38 @@ namespace Books.Hub.Api.Controllers
         /// <summary>
         /// Get book details with related data (product detail page)
         /// </summary>
+        /// <response code="200">Returns the requested Book</response>
+        /// <response code="404">If no Book matching the search criteria are found.</response>
         [HttpGet("{id}/details")]
         public async Task<IActionResult> GetBookDetails(int id, CancellationToken token)
         {
-            var spec = new QuerySpecification<Book>();
-
-            spec.AddInclude(q => q
-                .Include(b => b.BookCategories)
-                .ThenInclude(bc => bc.Category)
-            );
-
-            spec.AddInclude(q => q
-                .Include(b => b.Author)
-            );
-
-
-            var book = await _bookService.GetByIdAsync(id, spec, token);
-            return book != null ? Ok(book) : NotFound();
+            var book = await _bookService.GetByIdAsync(id, token);
+            return Ok(book);
         }
 
 
+        
+        // [HttpPost("add")]
+        //[ProducesResponseType(StatusCodes.Status201Created)]
+        //public async Task<IActionResult> CreateAuthorProfile([FromForm] CreateBookDTO dto, CancellationToken cancellationToken)
+        //{
+        //    if (!ModelState.IsValid)
+        //        return BadRequest(ModelState);
 
-        /// <summary>
-        /// Get books by multiple filters (advanced search)
-        /// </summary>
-        [HttpGet("advanced")]
-        public async Task<IActionResult> AdvancedSearch(
-            CancellationToken token,
-            [FromQuery] string? name,
-            [FromQuery] double? minPrice,
-            [FromQuery] double? maxPrice,
-            [FromQuery][Range(1, 10, ErrorMessage = "Page must be between 1 - 10")] double? minRating,
-            [FromQuery] string? sort = "name",
-            [FromQuery] bool? desc = true)
-        {
-            var spec = new QuerySpecification<Book>();
+        //    // Validate the uploaded image
+        //    if (dto.BookCoverFile is not null && !ImagesValidator.UploadedImagesValidator(dto.BookCoverFile!, _options.Value))
+        //    {
+        //        return BadRequest($"Only Accept |{_options.Value.AllowedExtentions.Replace(',', '|')}| with {_options.Value.MaxSizeAllowedInBytes / 1024 / 1024} MB");
+        //    }
 
-            if (!string.IsNullOrEmpty(name))
-                spec.AddCriteria(b => b.Name.Contains(name));
+        //    // Service throws ArgumentException or others on validation errors -> Global middleware handles them
+        //    var created = await _bookService.CreateBookAsync(dto, cancellationToken);
 
-            if (minPrice.HasValue)
-                spec.AddCriteria(b => b.Price >= minPrice.Value);
-
-            if (maxPrice.HasValue)
-                spec.AddCriteria(b => b.Price <= maxPrice.Value);
-
-            if (minRating.HasValue)
-                spec.AddCriteria(b => b.Rating >= minRating.Value);
-
-
-            spec.AddInclude(b => b.Include(a => a.Author));
-            spec.OrderByDescending = desc ?? false;
-            spec.OrderBy = sort switch
-            {
-                "price" => b => b.Price,
-                "date" => b => b.PublishedDate,
-                _ => b => b.Name
-            };
-
-            var books = await _bookService.GetAllAsync(spec, token);
-            return Ok(books);
-        }
-
-
-
-        /// <summary>
-        /// Returns Book without includes
-        /// </summary>
-        /// <response code="200">Returns Book without includes.</response>
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetBookByIdAsync([FromRoute] int id, CancellationToken cancellationToken) 
-        {
-            return Ok(await _bookService.GetByIdAsync(id, null ,cancellationToken));
-        }
-
-
-
-        /// <summary>
-        /// create book
-        /// </summary>
-        [HttpPost("add")]
-        [ProducesResponseType(StatusCodes.Status201Created)]
-        public async Task<IActionResult> CreateAuthorProfile([FromForm] CreateBookDTO dto , CancellationToken cancellationToken) 
-        {
-            if(!ModelState.IsValid)
-                return BadRequest(ModelState);
-
-            // Validate the uploaded image
-            if (dto.BookCoverFile is not null && !ImagesValidator.UploadedImagesValidator(dto.BookCoverFile!, _options.Value))
-            {
-                return BadRequest($"Only Accept |{_options.Value.AllowedExtentions.Replace(',', '|')}| with {_options.Value.MaxSizeAllowedInBytes / 1024 / 1024} MB");
-            }
-
-            // Service throws ArgumentException or others on validation errors -> Global middleware handles them
-            var created = await _bookService.CreateBookAsync(dto, cancellationToken);
-
-            return CreatedAtAction(
-                nameof(GetBookByIdAsync),      // action
-                new { id = created.Id },       // route values
-                created);                      // response body
-        }
+        //    return CreatedAtAction(
+        //        nameof(GetBookByIdAsync),      // action
+        //        new { id = created.Id },       // route values
+        //        created);                      // response body
+        //}
 
 
 
@@ -230,7 +106,7 @@ namespace Books.Hub.Api.Controllers
         /// Edit book with Id
         /// </summary>
         [HttpPut("edit")]
-        public async Task<IActionResult> EditAsync(EditBookDTO dto, CancellationToken cancellationToken) 
+        public async Task<IActionResult> EditAsync(EditBookDTO dto, CancellationToken cancellationToken)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
@@ -253,7 +129,7 @@ namespace Books.Hub.Api.Controllers
         [Authorize(Roles = nameof(Roles.Admin))]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        public async Task<IActionResult> DeletetAsync([FromRoute] int id, CancellationToken cancellationToken) 
+        public async Task<IActionResult> DeletetAsync([FromRoute] int id, CancellationToken cancellationToken)
         {
             await _bookService.DeleteAsync(id, cancellationToken);
             return NoContent();

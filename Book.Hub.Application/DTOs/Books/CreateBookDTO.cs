@@ -38,12 +38,13 @@ namespace Books.Hub.Application.DTOs.Books
         [Required]
         public int TotalCopiesSold { get; set; }
 
-        public IFormFile? BookCoverFile { get; set; }
+        public IFormFile? BookCover { get; set; }
+        public IFormFile? BookFile { get; set; }
 
-        [SwaggerSchema(ReadOnly = true)] // Hides it from Swagger input
-        [JsonIgnore] // Prevents it from being included in API requests
-        [BindNever] // Ensures it's never bound from a request
-        public byte[]? BookCover { get; set; }
+        //[SwaggerSchema(ReadOnly = true)] // Hides it from Swagger input
+        //[JsonIgnore] // Prevents it from being included in API requests
+        //[BindNever] // Ensures it's never bound from a request
+        //public byte[]? BookCover { get; set; }
 
         [Required]
         public int AuthorId { get; set; }

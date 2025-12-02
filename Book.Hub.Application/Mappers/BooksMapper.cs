@@ -1,11 +1,6 @@
 ﻿using Books.Hub.Application.DTOs.Books;
+using Books.Hub.Application.DTOs.Categories;
 using Books.Hub.Domain.Entities;
-using Books.Hub.Application.Services;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Books.Hub.Application.Mappers
 {
@@ -24,7 +19,6 @@ namespace Books.Hub.Application.Mappers
                 TotalCopiesSold = dto.TotalCopiesSold,
                 AuthorId = dto.AuthorId,
                 PublishedDate = dto.PublishedDate,
-                BookCover = dto.BookCover,
                 BookCategories = dto.BookCategoryIDs.Select(i => new BookCategory { CategoryId = i}).ToList()
             };
         }
@@ -46,8 +40,13 @@ namespace Books.Hub.Application.Mappers
                 AuthorId = model.AuthorId,
                 AuthorName = model.Author.Name,
                 PublishedDate = model.PublishedDate,
-                BookCover = model.BookCover?.Take(50).ToArray(),
-                BookCategories = model.BookCategories.Select(i => i.Category.Name).ToList()
+                BookCoverURL = model.BookCoverURL,
+                BookFileURL = model.BookFileURL,
+                BookCategories = model.BookCategories.Select(i => new CategoryDTO
+                { 
+                    Id = i.Category.Id,
+                    Name = i.Category.Name
+                }).ToList()
             };
         }
 
@@ -66,36 +65,40 @@ namespace Books.Hub.Application.Mappers
                 TotalCopiesSold = model.TotalCopiesSold,
                 AuthorId = model.AuthorId,
                 AuthorName = authorName,
-                PublishedDate = model.PublishedDate,
-                BookCover = model.BookCover?.Take(50).ToArray(),
-                BookCategories = model.BookCategories.Select(i => i.Category.Name).ToList()
+                BookCoverURL = model.BookCoverURL,
+                BookFileURL = model.BookFileURL,
+                BookCategories = model.BookCategories.Select(i => new CategoryDTO
+                {
+                    Id = i.Category.Id,
+                    Name = i.Category.Name
+                }).ToList()
             };
         }
 
 
-        public static List<BookDTO> ToBookDTOList(this List<Book> models)
-        {
-            var list = new List<BookDTO>();
+        //public static List<BookDTO> ToBookDTOList(this List<Book> models)
+        //{
+        //    var list = new List<BookDTO>();
 
-            foreach (var model in models) 
-            {
-                list.Add(new BookDTO 
-                {
-                    Id = model.Id,
-                    Name = model.Name,
-                    Description = model.Description,
-                    IsAvailable = model.IsAvailable,
-                    Language = model.Language,
-                    PageCount = model.PageCount,
-                    Price = model.Price,
-                    Rating = model.Rating,
-                    TotalCopiesSold = model.TotalCopiesSold,
-                    AuthorId = model.AuthorId,                  
-                    PublishedDate = model.PublishedDate,
-                    BookCover = model.BookCover?.Take(50).ToArray(),
-                });
-            }
-            return list;
-        }
+        //    foreach (var model in models) 
+        //    {
+        //        list.Add(new BookDTO 
+        //        {
+        //            Id = model.Id,
+        //            Name = model.Name,
+        //            Description = model.Description,
+        //            IsAvailable = model.IsAvailable,
+        //            Language = model.Language,
+        //            PageCount = model.PageCount,
+        //            Price = model.Price,
+        //            Rating = model.Rating,
+        //            TotalCopiesSold = model.TotalCopiesSold,
+        //            AuthorId = model.AuthorId,                  
+        //            PublishedDate = model.PublishedDate,
+        //            BookCover = model.BookCover?.Take(50).ToArray(),
+        //        });
+        //    }
+        //    return list;
+        //}
     }
 }

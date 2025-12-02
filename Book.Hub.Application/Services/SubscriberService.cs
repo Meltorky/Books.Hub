@@ -97,7 +97,7 @@ namespace Books.Hub.Application.Services
 
             var books = user.UserBooks.Select(x => x.Book).ToList();
 
-            return books.ToBookDTOList();
+            return books.Select(b => b.ToBookDTO()).ToList();
         }
 
 
@@ -144,7 +144,7 @@ namespace Books.Hub.Application.Services
             var bookIDs = user.FavouriteBooks.ToList();
 
             var books = await _unitOfWork.Books.GetRange( bookIDs, token);
-            return books.ToBookDTOList();
+            return books.Select(b => b.ToBookDTO()).ToList();
         }
 
 

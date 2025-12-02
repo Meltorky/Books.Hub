@@ -5,6 +5,7 @@ using Books.Hub.Application.Interfaces.IServices;
 using Books.Hub.Application.Mappers;
 using Books.Hub.Domain.Common;
 using Books.Hub.Domain.Entities;
+using Microsoft.EntityFrameworkCore;
 
 namespace Books.Hub.Application.Services
 {
@@ -17,21 +18,69 @@ namespace Books.Hub.Application.Services
         }
 
 
-
-        public async Task<IEnumerable<BookDTO>> GetAllAsync(QuerySpecification<Book> spec, CancellationToken cancellationToken)
+        // get all books
+        public async Task<List<BookDTO>> GetAllAsync
+            (AdvancedSearch adv,
+            int? categoryId,
+            double? minPrice,
+            double? maxPrice,
+            CancellationToken token)
         {
-            var books = await _unitOfWork.Books.GetAll(spec, cancellationToken);
-            return books.Select(book => book.ToBookDTO());
+            var spec = new QuerySpecification<Book>();
+
+            spec.Skip = adv.Skip;
+            spec.Take = adv.Take;
+            spec.OrderByDescending = adv.IsDesc;
+            spec.OrderBy = adv.SortedBy switch
+            {
+                "best-seller" => b => b.TotalCopiesSold,
+                "rating" => b => b.Rating,
+                "name" => b => b.Name,
+                "recentley-added" => b => b.PublishedDate,
+                "price" => b => b.Price,
+                _ => b => b.TotalCopiesSold
+            };
+
+            if (adv.searchText is not null)
+                spec.AddCriteria(b => b.Name.Contains(adv.searchText.ToLowerInvariant()));
+
+            if (minPrice.HasValue)
+                spec.AddCriteria(b => b.Price >= minPrice.Value);
+
+            if (maxPrice.HasValue)
+                spec.AddCriteria(b => b.Price <= maxPrice.Value);
+
+            if (categoryId.HasValue)
+                spec.AddCriteria(b => b.BookCategories.Any(bc => bc.CategoryId == categoryId));
+
+            spec.AddInclude(q => q
+                .Include(b => b.Author));
+
+            spec.AddInclude(q => q
+                .Include(b => b.BookCategories)
+                .ThenInclude(bc => bc.Category));
+
+            var books = await _unitOfWork.Books.GetAll(spec, token);
+            return books.Select(book => book.ToBookDTO()).ToList();
         }
 
 
-
-        public async Task<BookDTO> GetByIdAsync(int id, QuerySpecification<Book>? spec, CancellationToken cancellationToken)
+        // get book by Id with details
+        public async Task<BookDTO> GetByIdAsync(int id, CancellationToken token)
         {
-            var book = await _unitOfWork.Books.GetById(id, spec, cancellationToken);
-            return book is null ?
-                throw new NotFoundException($"Book with ID {id} was not found.") :
-                book.ToBookDTO();
+            var spec = new QuerySpecification<Book>();
+   
+            spec.AddInclude(q => q.Include(b => b.Author));
+            spec.AddInclude(q => q
+                .Include(b => b.BookCategories)
+                .ThenInclude(bc => bc.Category)
+            );
+
+            var book = await _unitOfWork.Books.GetById(
+                id, spec, token)
+                ?? throw new NotFoundException($"Book with ID {id} was not found.");
+
+            return book.ToBookDTO();
         }
 
 
@@ -57,8 +106,7 @@ namespace Books.Hub.Application.Services
                 throw new ArgumentException($"{dto.Name} Book Name Is Already Exist.");
 
             // 4. Convert Book Cover FormFile To byte[]
-            if (dto.BookCoverFile is not null)
-                dto.BookCover = await HandleImageFiles(dto.BookCoverFile);
+
 
             // 5. create new Book
             var result = await _unitOfWork.Books.AddAsync(dto.CreateBookDTOtoBook(), token);
@@ -81,7 +129,7 @@ namespace Books.Hub.Application.Services
             //);
 
             //var book = await _unitOfWork.Books.GetById(dto.Id,spec,token);
-            var book = await _unitOfWork.Books.GetById(dto.Id,token);
+            var book = await _unitOfWork.Books.GetById(dto.Id, token);
 
             if (book is null)
                 throw new NotFoundException($"Book with ID {dto.Id} was not found.");

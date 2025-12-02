@@ -44,7 +44,7 @@ namespace UnitTests.Infrastructure.Repositories
             var updated = await repository.EditAsync(author, token);
 
             // Assert
-            updated.Should().BeTrue();
+            updated.Should().NotBeNull();
             context.Set<Author>().First().Name.Should().Be("Updated Name");
         }
 

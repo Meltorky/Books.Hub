@@ -96,13 +96,18 @@ namespace Books.Hub.Application.Services
 
             // handle Author profile cover
             if (dto.AuthorImageFile is not null)
-                dto.AuthorImageURL = await _image
-                    .UploadAsync(dto.AuthorImageFile, dto.Name.Trim().ToLowerInvariant(), true);
+            {
+                var uploadedCover = await _image.UploadAsync(dto.AuthorImageFile, dto.Name.Trim().ToLowerInvariant(), true);
+                dto.AuthorImageURL = uploadedCover.uploadedFileURL;
+                dto.AuthorImageId = uploadedCover.uploadedFileId;
+            }
+                
 
             var newProfile = new Author()
             {
                 Name = dto.Name,
                 AuthorImageURL = dto.AuthorImageURL,
+                AuthorImageId = dto.AuthorImageId,
                 Bio = dto.Bio,
                 Nationality = dto.Nationality,
                 DateOfBrith = dto.DateOfBrith,
@@ -125,8 +130,11 @@ namespace Books.Hub.Application.Services
 
             // handle Author profile cover
             if (dto.AuthorImageFile is not null)
-                author.AuthorImageURL = await _image
-                    .UploadAsync(dto.AuthorImageFile, dto.Name.Trim().ToLowerInvariant(), true);
+            {
+                var uploadedCover = await _image.UploadAsync(dto.AuthorImageFile, dto.Name.Trim().ToLowerInvariant(), true);
+                author.AuthorImageURL = uploadedCover.uploadedFileURL;
+                author.AuthorImageId = uploadedCover.uploadedFileId;
+            }
 
             author.Name = dto.Name;
             author.Bio = dto.Bio;

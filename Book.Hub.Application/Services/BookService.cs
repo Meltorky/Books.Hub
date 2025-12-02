@@ -72,7 +72,7 @@ namespace Books.Hub.Application.Services
         public async Task<BookDTO> GetByIdAsync(int id, CancellationToken token)
         {
             var spec = new QuerySpecification<Book>();
-   
+
             spec.AddInclude(q => q.Include(b => b.Author));
             spec.AddInclude(q => q
                 .Include(b => b.BookCategories)
@@ -88,11 +88,11 @@ namespace Books.Hub.Application.Services
 
 
 
-        public async Task<BookDTO> CreateBookAsync(CreateBookDTO dto, CancellationToken token)
+        public async Task<BookDTO> CreateBookAsync(FormBookDTO dto, CancellationToken token)
         {
             // 1. Validate Author
-            if (!await _unitOfWork.Authors.IsExitAsync(a => a.Id == dto.AuthorId, token))
-                throw new ArgumentException($"Author with ID {dto.AuthorId} does not exist.");
+            var author = await _unitOfWork.Authors.GetByIdFast(dto.AuthorId, token)
+                ?? throw new ArgumentException($"Author with ID {dto.AuthorId} does not exist.");
 
             // 2. Validate Categories
             var distinctCategoryIds = dto.BookCategoryIDs.Distinct().ToList();
@@ -109,7 +109,7 @@ namespace Books.Hub.Application.Services
                 throw new ArgumentException($"{dto.Name} Book Name Is Already Exist.");
 
             // 4. save book cover in ImageKit
-            if (dto.BookCover is not null) 
+            if (dto.BookCover is not null)
             {
                 var uploadedCover = await _image.UploadAsync(dto.BookCover, $"{dto.Name}Cover", true);
                 dto.BookCoverID = uploadedCover.uploadedFileId;
@@ -127,53 +127,82 @@ namespace Books.Hub.Application.Services
             // 6. create new Book
             var result = await _unitOfWork.Books.AddAsync(dto.ToBook(), token);
 
-            return result.ToBookDTO();
+            return result.ToBookDTO(author.Name);
         }
 
 
-        public async Task<BookDTO> EditAsync(EditBookDTO dto, CancellationToken token)
+        public async Task<BookDTO> EditAsync(int Id, FormBookDTO dto, CancellationToken token)
         {
-            var book = await _unitOfWork.Books.GetByIdFast(dto.Id, token)
-                ?? throw new NotFoundException($"Book with ID {dto.Id} was not found.");
+            var book = await _unitOfWork.Books.GetByIdFast(Id, token)
+                ?? throw new NotFoundException($"Book with ID {Id} was not found.");
 
-            if (dto.BookCoverFile is not null)
-                dto.BookCover = await HandleImageFiles(dto.BookCoverFile);
+            // Validate Author
+            var author = await _unitOfWork.Authors.GetByIdFast(dto.AuthorId, token)
+                ?? throw new ArgumentException($"Author with ID {dto.AuthorId} does not exist.");
 
-            GenericMapDtoToEntity(dto, book); // map the book dto to the book entity
+            // Validate Categories
+            var distinctCategoryIds = dto.BookCategoryIDs.Distinct().ToList();
+            var existingCategoryIds = await _unitOfWork.Categories
+                .GetExistingIdsRange(distinctCategoryIds, token);
 
-            if (dto.BookCategoryIDs is not null)
+            var invalidCategoryIds = distinctCategoryIds.Except(existingCategoryIds).ToList();
+
+            if (invalidCategoryIds.Any())
+                throw new ArgumentException($"Invalid Category IDs: {string.Join('|', invalidCategoryIds)}");
+
+            // Validate Book Title should not be duplicate in DB
+            if (book.Name != dto.Name && await _unitOfWork.Books.IsExitAsync(a => a.Name == dto.Name, token))
+                throw new ArgumentException($"{dto.Name} Book Name Is Already Exist.");
+
+            // save book cover in ImageKit
+            if (dto.BookCover is not null)
             {
-                // Validate Categories
-                var distinctCategoryIds = dto.BookCategoryIDs.Distinct().ToList();
-                var existingCategoryIds = await _unitOfWork.Categories
-                    .GetExistingIdsRange(distinctCategoryIds, token);
-
-                var invalidCategoryIds = distinctCategoryIds.Except(existingCategoryIds).ToList();
-
-                if (invalidCategoryIds.Any())
-                    throw new ArgumentException($"Invalid Category IDs: {string.Join(", ", invalidCategoryIds)}");
-
-                // remove all book.BookCategories, then asgin the new values
-                await _unitOfWork.Books.RemoveBookCategories(book.BookCategories);
-                book.BookCategories = dto.BookCategoryIDs.Select(i => new BookCategory { CategoryId = i }).ToList();
+                var uploadedCover = await _image.UploadAsync(dto.BookCover, $"{dto.Name}Cover", true);
+                dto.BookCoverID = uploadedCover.uploadedFileId;
+                dto.BookCoverURL = uploadedCover.uploadedFileURL;
+            }
+            else
+            {
+                dto.BookCoverURL = book.BookCoverURL;
+                dto.BookCoverID = book.BookCoverId;
             }
 
-            await _unitOfWork.Books.EditAsync(book, token);
-            return book.ToBookDTO();
+            // save book file in ImageKit
+            if (dto.BookFile is not null)
+            {
+                var uploadedFile = await _image.UploadAsync(dto.BookFile, $"{dto.Name}file", false);
+                dto.BookFileID = uploadedFile.uploadedFileId;
+                dto.BookFileURL = uploadedFile.uploadedFileURL;
+            }
+            else
+            {
+                dto.BookFileID = book.BookFileId;
+                dto.BookFileURL = book.BookFileURL;
+            }
+
+            // map the dto values to the orginal book
+            book.MapNewValues(dto);
+
+            // create new Book
+            var result = await _unitOfWork.Books.EditAsync(book, token);
+
+            return result.ToBookDTO(author.Name);
         }
 
 
         public async Task<bool> DeleteAsync(int Id, CancellationToken token)
         {
-            var book = await _unitOfWork.Books.GetById(Id, token);
+            var book = await _unitOfWork.Books.GetById(Id, token)
+                ?? throw new NotFoundException($"Book with ID {Id} was not found.");
 
-            if (book is null) throw new NotFoundException($"Book with ID {Id} was not found.");
+            if(book.BookFileId is not null) await DeleteImageKitFiles(book.BookFileId);
+            if(book.BookCoverId is not null) await DeleteImageKitFiles(book.BookCoverId);
 
             return await _unitOfWork.Books.DeleteAsync(book, token);
         }
 
 
-        private async Task<List<string>> DeleteImageKitFiles(params string[] fileIds) 
+        private async Task<List<string>> DeleteImageKitFiles(params string[] fileIds)
         {
             List<string> ids = new List<string>();
             foreach (var fileId in fileIds)

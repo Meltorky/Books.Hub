@@ -8,7 +8,7 @@ using System.Text.Json.Serialization;
 
 namespace Books.Hub.Application.DTOs.Books
 {
-    public class CreateBookDTO
+    public class FormBookDTO
     {
         [Required]
         [MaxLength(80)]

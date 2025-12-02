@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -19,27 +20,11 @@ namespace Books.Hub.Infrastructure.Repositories
         }
 
 
-        // EF Does Not Track them, Used For Editing an existing Book  VVV
-        public async Task RemoveBookCategories(ICollection<BookCategory> bookCategories)
+        public async Task<int> CountOf(Expression<Func<Book,bool>> criteria, CancellationToken token)
         {
-            _context.BookCategories.RemoveRange(bookCategories);
-            await _context.SaveChangesAsync();
+            var r = await _context.Books.Where(criteria).ToListAsync(token);
+            return r.Count();
         }
-
-
-
-        // EF Core Tracks them, Used For Deleting an existing Book
-        //public async Task RemoveBookCategories(Book book)
-        //{
-        //    var relatedCategories = await _context.BookCategories
-        //        .Where(bc => bc.BookId == book.Id)
-        //        .ToListAsync(); // Ensure EF Core tracks them
-
-        //    if (relatedCategories.Any())
-        //        _context.BookCategories.RemoveRange(relatedCategories);
-
-        //    await _context.SaveChangesAsync();
-        //}
 
     }
 }

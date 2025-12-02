@@ -79,7 +79,7 @@ namespace Books.Hub.Api.Controllers
 
         [HttpPost("add")]
         [ProducesResponseType(StatusCodes.Status201Created)]
-        public async Task<IActionResult> CreateAysnc([FromForm] CreateBookDTO dto, CancellationToken cancellationToken)
+        public async Task<IActionResult> CreateAysnc([FromForm] FormBookDTO dto, CancellationToken cancellationToken)
         {
             var created = await _bookService.CreateBookAsync(dto, cancellationToken);
 
@@ -94,18 +94,10 @@ namespace Books.Hub.Api.Controllers
         /// <summary>
         /// Edit book with Id
         /// </summary>
-        [HttpPut("edit")]
-        public async Task<IActionResult> EditAsync(EditBookDTO dto, CancellationToken cancellationToken)
+        [HttpPut("edit/{id}")]
+        public async Task<IActionResult> EditAsync([FromRoute]int id, [FromForm] FormBookDTO dto, CancellationToken token)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
-            if (dto.BookCoverFile is not null && !ImagesValidator.UploadedImagesValidator(dto.BookCoverFile!, _options.Value))
-            {
-                return BadRequest($"Only Accept |{_options.Value.AllowedExtentions.Replace(',', '|')}| with {_options.Value.MaxSizeAllowedInBytes / 1024 / 1024} MB");
-            }
-
-            var editedBook = await _bookService.EditAsync(dto, cancellationToken);
+            var editedBook = await _bookService.EditAsync(id,dto, token);
             return Ok(editedBook);
         }
 
@@ -115,7 +107,7 @@ namespace Books.Hub.Api.Controllers
         /// Delete Book With Id
         /// </summary>
         [HttpDelete("delete/{id}")]
-        [Authorize(Roles = nameof(Roles.Admin))]
+        //[Authorize(Roles = nameof(Roles.Admin))]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> DeletetAsync([FromRoute] int id, CancellationToken cancellationToken)

@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
+﻿using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
-using System.Threading.Tasks;
 using Books.Hub.Application.Attributes;
 using Books.Hub.Application.Constants;
 using Microsoft.AspNetCore.Http;
@@ -39,6 +34,11 @@ namespace Books.Hub.Application.DTOs.Authors
         [JsonIgnore] // Prevents it from being included in API requests
         [BindNever] // Ensures it's never bound from a request
         public string? AuthorImageURL { get; set; }
+
+        [SwaggerSchema(ReadOnly = true)] // Hides it from Swagger input
+        [JsonIgnore] // Prevents it from being included in API requests
+        [BindNever] // Ensures it's never bound from a request
+        public string? AuthorImageId { get; set; }
 
 
         [Required]

@@ -6,7 +6,7 @@ namespace Books.Hub.Application.Mappers
 {
     public static class BooksMapper
     {
-        public static Book ToBook(this CreateBookDTO dto) 
+        public static Book ToBook(this FormBookDTO dto) 
         {
             return new Book()
             {
@@ -26,6 +26,26 @@ namespace Books.Hub.Application.Mappers
                 BookCategories = dto.BookCategoryIDs.Select(i => new BookCategory { CategoryId = i}).ToList()
             };
         }
+
+
+        public static void MapNewValues(this Book book, FormBookDTO dto)
+        {
+            book.Name = dto.Name;
+            book.Description = dto.Description;
+            book.Language = dto.Language;
+            book.PageCount = dto.PageCount;
+            book.Price = dto.Price;
+            book.Rating = dto.Rating;
+            book.TotalCopiesSold = dto.TotalCopiesSold;
+            book.AuthorId = dto.AuthorId;
+            book.PublishedDate = dto.PublishedDate;
+            book.BookCoverURL = dto.BookCoverURL;
+            book.BookCoverId = dto.BookCoverID;
+            book.BookFileURL = dto.BookFileURL;
+            book.BookFileId = dto.BookFileID;
+            book.BookCategories = dto.BookCategoryIDs.Select(i => new BookCategory { CategoryId = i }).ToList();
+        }
+
 
 
         public static BookDTO ToBookDTO(this Book model)
@@ -71,38 +91,8 @@ namespace Books.Hub.Application.Mappers
                 AuthorName = authorName,
                 BookCoverURL = model.BookCoverURL,
                 BookFileURL = model.BookFileURL,
-                BookCategories = model.BookCategories.Select(i => new CategoryDTO
-                {
-                    Id = i.Category.Id,
-                    Name = i.Category.Name
-                }).ToList()
+                BookCategories = new List<CategoryDTO>() 
             };
-        }
-
-
-        //public static List<BookDTO> ToBookDTOList(this List<Book> models)
-        //{
-        //    var list = new List<BookDTO>();
-
-        //    foreach (var model in models) 
-        //    {
-        //        list.Add(new BookDTO 
-        //        {
-        //            Id = model.Id,
-        //            Name = model.Name,
-        //            Description = model.Description,
-        //            IsAvailable = model.IsAvailable,
-        //            Language = model.Language,
-        //            PageCount = model.PageCount,
-        //            Price = model.Price,
-        //            Rating = model.Rating,
-        //            TotalCopiesSold = model.TotalCopiesSold,
-        //            AuthorId = model.AuthorId,                  
-        //            PublishedDate = model.PublishedDate,
-        //            BookCover = model.BookCover?.Take(50).ToArray(),
-        //        });
-        //    }
-        //    return list;
-        //}
+        }  
     }
 }

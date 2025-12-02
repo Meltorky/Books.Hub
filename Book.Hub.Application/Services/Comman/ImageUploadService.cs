@@ -79,10 +79,6 @@ namespace Books.Hub.Application.Services.Comman
 
             // 5. Upload and Handle Response
             var result = await imagekit.DeleteFileAsync(fileId);
-
-            if (result == null || result.HttpStatusCode != (int)HttpStatusCode.OK)
-                throw new Exception($"Failed to delete image from ImageKit. Status: {result?.HttpStatusCode}");
-
             return result.fileId; // confirms what was deleted }
         }
     }

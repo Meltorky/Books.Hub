@@ -1,6 +1,5 @@
 ﻿using Books.Hub.Application.Interfaces.IRepositories;
 using Books.Hub.Domain.Common;
-using Books.Hub.Domain.Entities;
 using Books.Hub.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;

@@ -1,8 +1,5 @@
-﻿using Books.Hub.Api.Validators;
-using Books.Hub.Application.DTOs.Books;
+﻿using Books.Hub.Application.DTOs.Books;
 using Books.Hub.Domain.Common;
-using Books.Hub.Domain.Enums;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using System.ComponentModel.DataAnnotations;
@@ -57,8 +54,28 @@ namespace Books.Hub.Api.Controllers
                 SortedBy = sort,
                 IsDesc = isDesc,
             };
-            var authors = await _bookService.GetAllAsync(advancedSearch, categoryId, minPrice, maxPrice, token);
-            return Ok(authors);
+            var books = await _bookService.GetAllAsync(advancedSearch, categoryId, minPrice, maxPrice, token);
+            return Ok(books);
+        }
+
+
+
+        /// <summary>
+        /// Create a new Book
+        /// </summary>
+        /// <param name="dto"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        [HttpPost("add")]
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        public async Task<IActionResult> CreateAysnc([FromForm] FormBookDTO dto, CancellationToken cancellationToken)
+        {
+            var created = await _bookService.CreateBookAsync(dto, cancellationToken);
+
+            return CreatedAtAction(
+                nameof(GetBookDetails),
+                new { id = created.Id },
+                created);
         }
 
 
@@ -76,21 +93,7 @@ namespace Books.Hub.Api.Controllers
         }
 
 
-
-        [HttpPost("add")]
-        [ProducesResponseType(StatusCodes.Status201Created)]
-        public async Task<IActionResult> CreateAysnc([FromForm] FormBookDTO dto, CancellationToken cancellationToken)
-        {
-            var created = await _bookService.CreateBookAsync(dto, cancellationToken);
-
-            return CreatedAtAction(
-                nameof(GetBookDetails),
-                new { id = created.Id },
-                created);
-        }
-
-
-
+       
         /// <summary>
         /// Edit book with Id
         /// </summary>

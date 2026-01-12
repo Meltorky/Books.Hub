@@ -67,27 +67,7 @@ namespace Books.Hub.Application.Services
             return books.Select(book => book.ToBookDTO()).ToList();
         }
 
-
-        // get book by Id with details
-        public async Task<BookDTO> GetByIdAsync(int id, CancellationToken token)
-        {
-            var spec = new QuerySpecification<Book>();
-
-            spec.AddInclude(q => q.Include(b => b.Author));
-            spec.AddInclude(q => q
-                .Include(b => b.BookCategories)
-                .ThenInclude(bc => bc.Category)
-            );
-
-            var book = await _unitOfWork.Books.GetById(
-                id, spec, token)
-                ?? throw new NotFoundException($"Book with ID {id} was not found.");
-
-            return book.ToBookDTO();
-        }
-
-
-
+       
         public async Task<BookDTO> CreateBookAsync(FormBookDTO dto, CancellationToken token)
         {
             // 1. Validate Author
@@ -96,17 +76,17 @@ namespace Books.Hub.Application.Services
 
             // 2. Validate Categories
             var distinctCategoryIds = dto.BookCategoryIDs.Distinct().ToList();
-            var existingCategoryIds = await _unitOfWork.Categories
-                .GetExistingIdsRange(distinctCategoryIds, token);
+            var existingCategory = await _unitOfWork.Categories.GetRange(distinctCategoryIds, token);
+            var existingCategoryIds = existingCategory.Select(c => c.Id).ToList();
 
             var invalidCategoryIds = distinctCategoryIds.Except(existingCategoryIds).ToList();
 
             if (invalidCategoryIds.Any())
-                throw new ArgumentException($"Invalid Category IDs: {string.Join('|', invalidCategoryIds)}");
+                throw new OperationFailedException($"Invalid Category IDs: {string.Join('|', invalidCategoryIds)}");
 
             // 3. Validate Book Title should not be duplicate in DB
             if (await _unitOfWork.Books.IsExitAsync(a => a.Name == dto.Name, token))
-                throw new ArgumentException($"{dto.Name} Book Name Is Already Exist.");
+                throw new OperationCanceledException($"{dto.Name} Book Name Is Already Exist.");
 
             // 4. save book cover in ImageKit
             if (dto.BookCover is not null)
@@ -127,7 +107,28 @@ namespace Books.Hub.Application.Services
             // 6. create new Book
             var result = await _unitOfWork.Books.AddAsync(dto.ToBook(), token);
 
-            return result.ToBookDTO(author.Name);
+            // 7. Put the new book in the Redis Cache
+
+            return result.ToBookDTO(author.Name, existingCategory);
+        }
+
+
+        // get book by Id with details
+        public async Task<BookDTO> GetByIdAsync(int id, CancellationToken token)
+        {
+            var spec = new QuerySpecification<Book>();
+
+            spec.AddInclude(q => q.Include(b => b.Author));
+            spec.AddInclude(q => q
+                .Include(b => b.BookCategories)
+                .ThenInclude(bc => bc.Category)
+            );
+
+            var book = await _unitOfWork.Books.GetById(
+                id, spec, token)
+                ?? throw new NotFoundException($"Book with ID {id} was not found.");
+
+            return book.ToBookDTO();
         }
 
 

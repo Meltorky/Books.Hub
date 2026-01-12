@@ -1,4 +1,5 @@
-﻿using Books.Hub.Application.Interfaces.IRepositories;
+﻿using Books.Hub.Application.DTOs.Categories;
+using Books.Hub.Application.Interfaces.IRepositories;
 using Books.Hub.Domain.Entities;
 using Books.Hub.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
@@ -18,12 +19,18 @@ namespace Books.Hub.Infrastructure.Repositories
             _context = context;
         }
 
-        //public async Task<IEnumerable<Category>> GetAllAsync()
-        //{
-        //    return await _context.Categories
-        //        .AsNoTracking()
-        //        .OrderBy(x => x.Name)
-        //        .ToListAsync();
-        //}
+        public async Task<List<CategoryDTO>> GetAllAsync(CancellationToken token)
+        {
+            return await _context.Categories
+                .Select(c => new CategoryDTO
+                {
+                    Id = c.Id,
+                    Name = c.Name,
+                    BooksNumber = c.BookCategories.Count()
+                })
+                .OrderByDescending(x => x.BooksNumber)
+                .AsNoTracking()
+                .ToListAsync(token);
+        }
     }
 }

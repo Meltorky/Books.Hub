@@ -93,6 +93,27 @@ namespace Books.Hub.Application.Mappers
                 BookFileURL = model.BookFileURL,
                 BookCategories = new List<CategoryDTO>() 
             };
-        }  
+        }
+
+        public static BookDTO ToBookDTO(this Book model, string authorName, List<Category> categories)
+        {
+            return new BookDTO()
+            {
+                Id = model.Id,
+                Name = model.Name,
+                Description = model.Description,
+                IsAvailable = model.IsAvailable,
+                Language = model.Language,
+                PageCount = model.PageCount,
+                Price = model.Price,
+                Rating = model.Rating,
+                TotalCopiesSold = model.TotalCopiesSold,
+                AuthorId = model.AuthorId,
+                AuthorName = authorName,
+                BookCoverURL = model.BookCoverURL,
+                BookFileURL = model.BookFileURL,
+                BookCategories = categories.Select(x => new CategoryDTO { Id = x.Id, Name = x.Name}).ToList()
+            };
+        }
     }
 }

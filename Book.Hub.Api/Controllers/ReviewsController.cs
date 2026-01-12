@@ -26,9 +26,7 @@ namespace Books.Hub.Api.Controllers
         [HttpPost]
         [ProducesResponseType(typeof(ReviewDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> AddReview(
-            [FromBody] AddReviewDTO dto,
-            CancellationToken token)
+        public async Task<ActionResult<ReviewDTO>> AddReview( [FromBody] AddReviewDTO dto,CancellationToken token)
         {
             var result = await _reviewService.AddReview(dto, token);
             return Ok(result);

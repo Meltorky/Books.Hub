@@ -23,15 +23,9 @@ namespace Books.Hub.Api.Controllers
         /// Get all Categories sorted by name.
         /// </summary>   
         [HttpGet("all")]
-        public async Task<IActionResult> GetAllAsync(CancellationToken token, [FromQuery] bool desc = false)
+        public async Task<IActionResult> GetAllAsync(CancellationToken token)
         {
-            var spec = new QuerySpecification<Category>() 
-            { 
-                OrderByDescending  = desc,
-                OrderBy = x => x.Name
-            };
-
-            var categories = await _categoryService.GetAllAsync(spec , token);
+            var categories = await _categoryService.GetAllAsync(new QuerySpecification<Category>(),token);
             return Ok(categories);
         }
 
@@ -56,7 +50,7 @@ namespace Books.Hub.Api.Controllers
         /// Get popular Categories which includs bigger nummber of books.
         /// </summary>   
         [HttpGet("popular")]
-        public async Task<IActionResult> GetAllAsync(CancellationToken token)
+        public async Task<IActionResult> GetAllAsync1(CancellationToken token)
         {
             var spec = new QuerySpecification<Category>();
             spec.AddInclude(c => c.Include(x => x.BookCategories));

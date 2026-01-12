@@ -1,5 +1,6 @@
 using Books.Hub.Application.Interfaces.IServices.Comman;
 using Books.Hub.Application.Services.Comman;
+using Books.Hub.Appliction.Options;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -70,7 +71,7 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(o =>
 builder.Services.AddSingleton<IImageUploadService, ImageUploadService>();
 
 // Add JWT authentication in program.cs
-builder.Services.AddJwtAuthentication(builder.Configuration);
+builder.Services.AddJwtAuthentication();
 
 // Inject System Services
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
@@ -99,6 +100,12 @@ builder.Services.AddScoped<ExecutionTimeFilter>();
 builder.Services.AddScoped<PerformanceActionFilter>();
 
 // Confiqurate Options
+// Bind JwtOptions once and validate it
+builder.Services.AddOptions<JwtOptions>()
+    .Bind(builder.Configuration.GetSection("JWT"))
+    .ValidateDataAnnotations()
+    .ValidateOnStart();
+
 //builder.Services.Configure<ImagesOptions>(builder.Configuration.GetSection("ImageSettings"));
 builder.Services.AddOptions<ImagesOptions>()
     .Bind(builder.Configuration.GetSection("ImageSettings"))
@@ -112,6 +119,21 @@ builder.Host.UseSerilog();
 
 // Replace default logging with Serilog
 builder.Host.UseSerilog();
+
+// CORS for Next.js frontend
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("NextJsPolicy", policy =>
+    {
+        policy.WithOrigins(
+            "http://localhost:4200"
+        )
+        .AllowAnyMethod()
+        .AllowAnyHeader()
+        .AllowCredentials();
+    });
+});
+
 
 var app = builder.Build();
 
@@ -130,12 +152,14 @@ if (app.Environment.IsDevelopment())
 //    options.RoutePrefix = string.Empty;
 //});
 
+// registering the Global Exception Handling Middleware.
+app.UseMiddleware<ExceptionHandlerMiddleware>();
+
+app.UseCors("NextJsPolicy");
+
 app.UseDeveloperExceptionPage(); // Enable developer exception page to surface issues clearly
 
 app.UseSerilogRequestLogging();  // Logs HTTP requests automatically
-
-// registering the Global Exception Handling Middleware.
-app.UseMiddleware<ExceptionHandlerMiddleware>();
 
 // Logs how long the request took (in milliseconds) using the ILogger
 app.UseMiddleware<ProfilingMiddleware>();
@@ -152,7 +176,7 @@ app.UseAuthorization();
 app.MapControllers();
 
 // Seed Identity Default Roles and Users
-// await app.Services.SeedIdentityAsync();
+await app.Services.SeedIdentityAsync();
 
 app.Run();
 

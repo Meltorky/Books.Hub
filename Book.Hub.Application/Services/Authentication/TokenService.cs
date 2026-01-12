@@ -53,7 +53,7 @@ namespace Books.Hub.Application.Services.Authentication
                 Issuer = jwtOptions.Issuer,
                 Audience = jwtOptions.Audience,
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtOptions.Key)), SecurityAlgorithms.HmacSha256),
-                Expires = DateTime.UtcNow.AddDays(double.Parse(jwtOptions.LfeTimeInDays))
+                Expires = DateTime.UtcNow.AddDays(jwtOptions.LfeTimeInDays)
             };
 
             var createdToken = tokenHandler.CreateToken(descriptor);

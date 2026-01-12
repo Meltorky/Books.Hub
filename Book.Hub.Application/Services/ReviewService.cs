@@ -35,9 +35,8 @@ namespace Books.Hub.Application.Services
 
         public async Task<bool> Delete(int Id, CancellationToken token)
         {
-            var review = await _unitOfWork.Reviews.GetById(Id , token);
-            if (review is null)
-                throw new NotFoundException($"No Review exist with id: {Id}");
+            var review = await _unitOfWork.Reviews.GetById(Id , token)
+                ?? throw new NotFoundException($"No Review exist with id: {Id}");
 
             return await _unitOfWork.Reviews.DeleteAsync(review , token);
         }
@@ -48,9 +47,8 @@ namespace Books.Hub.Application.Services
         {
             await ValidateUserAndBookExist(dto.UserId, dto.BookId, token);
 
-            var review = await _unitOfWork.Reviews.GetById(Id, token);
-            if (review is null)
-                throw new NotFoundException($"No Review exist with id: {Id}");
+            var review = await _unitOfWork.Reviews.GetById(Id, token)
+                ??throw new NotFoundException($"No Review exist with id: {Id}");
 
             review.Rating = dto.Rating;
             review.Comment = dto.Comment;

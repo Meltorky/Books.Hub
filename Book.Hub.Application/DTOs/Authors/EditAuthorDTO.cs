@@ -1,8 +1,10 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Books.Hub.Application.Attributes;
+using Books.Hub.Application.Constants;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Swashbuckle.AspNetCore.Annotations;
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
 
 
 namespace Books.Hub.Application.DTOs.Authors
@@ -25,7 +27,20 @@ namespace Books.Hub.Application.DTOs.Authors
 
         public bool IsActive { get; set; }
 
+        [FileValidation(ImageFileOptions.MaxSizeInMB, ImageFileOptions.AllowedExtentions)]
+        [SwaggerSchema(Description = ImageFileOptions.ErrorMessage)]
         public IFormFile? AuthorImageFile { get; set; }
+
+
+        [SwaggerSchema(ReadOnly = true)] // Hides it from Swagger input
+        [JsonIgnore] // Prevents it from being included in API requests
+        [BindNever] // Ensures it's never bound from a request
+        public string? AuthorImageURL { get; set; }
+
+        [SwaggerSchema(ReadOnly = true)] // Hides it from Swagger input
+        [JsonIgnore] // Prevents it from being included in API requests
+        [BindNever] // Ensures it's never bound from a request
+        public string? AuthorImageId { get; set; }
 
         [JsonPropertyName("Date Of Brith")]
         [SwaggerSchema(Description = "Enter the date in format yyyy-MM-dd")]

@@ -31,7 +31,6 @@ namespace Books.Hub.Application.Services
             if (await _unitOfWork.Authors.GetById(AuthorId, token) is null)
                 throw new NotFoundException($"Author with ID {userId} was not found.");
 
-
             if (user.AuthorSubscribers.Any(x => x.AuthorId == AuthorId))
                 throw new ConflictException("Already subscribed to this author.");
 
@@ -50,10 +49,8 @@ namespace Books.Hub.Application.Services
         {
             var user = await IsUserExist(UserId, token);
 
-            var subscription = user.AuthorSubscribers.SingleOrDefault(x => x.AuthorId == AuthorId);
-
-            if (subscription is null)
-                throw new NotFoundException("Subscription does not exist.");
+            var subscription = user.AuthorSubscribers.SingleOrDefault(x => x.AuthorId == AuthorId)
+                ?? throw new NotFoundException("Subscription does not exist.");
 
             user.AuthorSubscribers.Remove(subscription);
 

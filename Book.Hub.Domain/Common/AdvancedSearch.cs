@@ -20,6 +20,7 @@ namespace Books.Hub.Domain.Common
         [Range(1,100)]
         [SwaggerSchema(Description = "Page size must be between 1 and 100")]
         public int resultsPerPage { get; set; } = 20;
+
         public string SortedBy { get; set; } = string.Empty;
         public bool IsDesc { get; set; } = false;
 

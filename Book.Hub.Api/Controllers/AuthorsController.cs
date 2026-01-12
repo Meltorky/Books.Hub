@@ -125,17 +125,10 @@ namespace Books.Hub.Api.Controllers
         /// Edit Author Profile by Admin/Author
         /// </summary>
         [HttpPut("edit")]
-        public async Task<IActionResult> EditAuthorAsync([FromForm] EditAuthorDTO dto, CancellationToken token)
+        public async Task<ActionResult<AuthorDTO>> EditAuthorAsync([FromForm] EditAuthorDTO dto, CancellationToken token)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
-            if (dto.AuthorImageFile is not null && !ImagesValidator.UploadedImagesValidator(dto.AuthorImageFile!, _options.Value))
-            {
-                return BadRequest($"Only Accept {_options.Value.AllowedExtentions.Replace(',', ' ')} with {_options.Value.MaxSizeAllowedInBytes / 1024 / 1024} MB");
-            }
-
-            return Ok(await _authorService.EditAsync(dto, token));
+            var result = await _authorService.EditAsync(dto, token);
+            return Ok(result);
         }
 
 

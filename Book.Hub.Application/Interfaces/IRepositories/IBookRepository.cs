@@ -10,6 +10,5 @@ namespace Books.Hub.Application.Interfaces.IRepositories
 {
     public interface IBookRepository : IBaseRepository<Book>
     {
-        Task<int> CountOf(Expression<Func<Book, bool>> criteria, CancellationToken token);
     }
 }

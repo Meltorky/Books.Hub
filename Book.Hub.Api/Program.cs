@@ -157,7 +157,7 @@ app.UseMiddleware<ExceptionHandlerMiddleware>();
 
 app.UseCors("NextJsPolicy");
 
-app.UseDeveloperExceptionPage(); // Enable developer exception page to surface issues clearly
+// app.UseDeveloperExceptionPage(); // Enable developer exception page to surface issues clearly
 
 app.UseSerilogRequestLogging();  // Logs HTTP requests automatically
 

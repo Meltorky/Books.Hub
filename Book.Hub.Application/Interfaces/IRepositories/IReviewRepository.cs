@@ -9,5 +9,6 @@ namespace Books.Hub.Application.Interfaces.IRepositories
 {
     public interface IReviewRepository : IBaseRepository<BookReview>
     {
+        Task<BookReview?> FindBookReviewAsync(string userId, int bookId, CancellationToken token);
     }
 }

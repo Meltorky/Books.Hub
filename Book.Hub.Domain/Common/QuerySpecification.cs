@@ -5,8 +5,8 @@ namespace Books.Hub.Domain.Common
     public class QuerySpecification<T> where T : class
     {
         public List<Expression<Func<T, bool>>> Criteria { get; } = new();
-        public int Skip { get; set; }
-        public int Take { get; set; }
+        public int Skip { get; set; } = 0;
+        public int Take { get; set; } = 20;
         public Expression<Func<T, object>>? OrderBy { get; set; }
         public bool OrderByDescending { get; set; } = false;
         public List<Func<IQueryable<T>, IQueryable<T>>> Includes { get; } = new();

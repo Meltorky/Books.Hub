@@ -77,6 +77,21 @@ namespace Books.Hub.Application.Services
         }
 
 
+        // atigfty
+        // get author by user id
+        public async Task<AuthorDTO?> GetByUserIdAsync(string userId, CancellationToken token)
+        {
+            var spec = new QuerySpecification<Author>();
+            spec.AddCriteria(a => a.ApplicationAuthorId == userId);
+            spec.AddInclude(q => q.Include(a => a.Books));
+            spec.AddInclude(q => q.Include(a => a.AuthorSubscribers));
+
+            var authors = await _unitOfWork.Authors.GetAll(spec, token);
+            var author = authors.FirstOrDefault();
+            
+            return author?.ToAuthorDTO();
+        }
+
 
         // get author by id optimized
         public async Task<AuthorDTO> GetByIdAsync1(int Id, CancellationToken token)

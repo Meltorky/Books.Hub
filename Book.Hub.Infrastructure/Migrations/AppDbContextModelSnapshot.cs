@@ -144,7 +144,7 @@ namespace Books.Hub.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Authors");
+                    b.ToTable("Authors", (string)null);
                 });
 
             modelBuilder.Entity("Books.Hub.Domain.Entities.AuthorSubscriber", b =>
@@ -162,7 +162,7 @@ namespace Books.Hub.Infrastructure.Migrations
 
                     b.HasIndex("SubscriberId");
 
-                    b.ToTable("AuthorSubscribers");
+                    b.ToTable("AuthorSubscribers", (string)null);
                 });
 
             modelBuilder.Entity("Books.Hub.Domain.Entities.Book", b =>
@@ -228,7 +228,7 @@ namespace Books.Hub.Infrastructure.Migrations
                     b.HasIndex("Name")
                         .IsUnique();
 
-                    b.ToTable("Books");
+                    b.ToTable("Books", (string)null);
                 });
 
             modelBuilder.Entity("Books.Hub.Domain.Entities.BookCategory", b =>
@@ -243,7 +243,7 @@ namespace Books.Hub.Infrastructure.Migrations
 
                     b.HasIndex("CategoryId");
 
-                    b.ToTable("BookCategories");
+                    b.ToTable("BookCategories", (string)null);
                 });
 
             modelBuilder.Entity("Books.Hub.Domain.Entities.BookReview", b =>
@@ -269,7 +269,7 @@ namespace Books.Hub.Infrastructure.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("BookReviews");
+                    b.ToTable("BookReviews", (string)null);
                 });
 
             modelBuilder.Entity("Books.Hub.Domain.Entities.Category", b =>
@@ -287,7 +287,7 @@ namespace Books.Hub.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Categories");
+                    b.ToTable("Categories", (string)null);
 
                     b.HasData(
                         new
@@ -367,7 +367,7 @@ namespace Books.Hub.Infrastructure.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("FavouriteBooks");
+                    b.ToTable("FavouriteBooks", (string)null);
                 });
 
             modelBuilder.Entity("Books.Hub.Domain.Entities.UserBook", b =>
@@ -390,7 +390,7 @@ namespace Books.Hub.Infrastructure.Migrations
 
                     b.HasIndex("BookId");
 
-                    b.ToTable("UserBooks");
+                    b.ToTable("UserBooks", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -528,7 +528,7 @@ namespace Books.Hub.Infrastructure.Migrations
 
             modelBuilder.Entity("Books.Hub.Application.Identity.ApplicationUser", b =>
                 {
-                    b.OwnsMany("Books.Hub.Domain.Common.RefreshToken", "RefreshTokens", b1 =>
+                    b.OwnsMany("Books.Hub.Application.Identity.ApplicationUser.RefreshTokens#Books.Hub.Domain.Common.RefreshToken", "RefreshTokens", b1 =>
                         {
                             b1.Property<string>("ApplicationUserId")
                                 .HasColumnType("nvarchar(450)");

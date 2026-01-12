@@ -38,12 +38,15 @@ namespace Books.Hub.Application.Services
 
         public async Task<IEnumerable<CategoryDTO>> GetAllAsync(CancellationToken token)
         {
-            var spec = new QuerySpecification<Category>();
-            var categories = await _unitOfWork.Categories.GetAll(spec, token);
+            var categories = await _unitOfWork.Categories.GetAll(token,x => x.BookCategories);
+
+
+
             return categories.Select(c => new CategoryDTO
             {
                 Id = c.Id,
-                Name = c.Name
+                Name = c.Name,
+                BooksNumber = c.BookCategories.Count
             });
         }
 
@@ -84,9 +87,14 @@ namespace Books.Hub.Application.Services
             return await _unitOfWork.Categories.DeleteAsync(category ,token);
         }
 
-        public Task<IEnumerable<CategoryDTO>> GetAllAsync(QuerySpecification<Category> query, CancellationToken token)
+        public async Task<IEnumerable<CategoryDTO>> GetAllAsync(QuerySpecification<Category> query, CancellationToken token)
         {
-            throw new NotImplementedException();
+            var categories = await _unitOfWork.Categories.GetAll(query, token);
+            return categories.Select(c => new CategoryDTO
+            {
+                Id = c.Id,
+                Name = c.Name
+            });
         }
     }
 }

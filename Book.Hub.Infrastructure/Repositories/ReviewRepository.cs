@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Books.Hub.Application.Interfaces.IRepositories;
 using Books.Hub.Domain.Entities;
 using Books.Hub.Infrastructure.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace Books.Hub.Infrastructure.Repositories
 {
@@ -16,6 +17,12 @@ namespace Books.Hub.Infrastructure.Repositories
         public ReviewRepository(AppDbContext context) : base(context)
         {
             _context = context;
+        }
+
+        public async Task<BookReview?> FindBookReviewAsync(string userId, int bookId, CancellationToken token)
+        {
+            return await _context.BookReviews
+                .SingleOrDefaultAsync(x => x.UserId == userId && x.BookId == bookId, token);
         }
     }
 }

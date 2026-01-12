@@ -64,6 +64,13 @@ namespace Books.Hub.Api.Controllers
             var author = await _authorService.SimpleGetByIdAsync(id, token);
             return Ok(author);
         }
+        
+        [HttpGet("user/{userId}")]
+        public async Task<IActionResult> GetByUserIdAsync([FromRoute] string userId, CancellationToken token)
+        {
+            var author = await _authorService.GetByUserIdAsync(userId, token);
+            return Ok(author);
+        }
 
 
 

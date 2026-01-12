@@ -13,6 +13,7 @@ namespace Books.Hub.Application.Interfaces.IServices
     {
         Task<CategoryDTO> GetByIdAsync(int Id , CancellationToken token);
         Task<IEnumerable<CategoryDTO>> GetAllAsync(QuerySpecification<Category> query, CancellationToken token);
+        Task<IEnumerable<CategoryDTO>> GetAllAsync(CancellationToken token);
         Task<CategoryDTO> CreateAsync(CreateCategoryDTO dto , CancellationToken token);
         Task<CategoryDTO> EditAsync(CategoryDTO dto , CancellationToken token);
         Task<bool> DeleteAsync(int Id , CancellationToken token);

@@ -9,14 +9,14 @@ namespace Books.Hub.Application.Interfaces.IServices
 {
     public interface IReviewService
     {
-        
-        Task<ReviewDTO> GetById(int Id,CancellationToken token);
+
+        Task<ReviewDTO> GetById(string userId, int bookId, CancellationToken token);
 
         Task<List<ReviewDTO>> GetAllForBook(int BookId,CancellationToken token);
         Task<List<ReviewDTO>> GetAllForUser(string UserId,CancellationToken token);
 
         Task<ReviewDTO> AddReview(AddReviewDTO dto,CancellationToken token);
-        Task<ReviewDTO> EditReview( int Id, AddReviewDTO dto,CancellationToken token);
-        Task<bool> Delete(int Id,CancellationToken token);
+        Task<ReviewDTO> EditReview(string userId, int bookId, AddReviewDTO dto, CancellationToken token);
+        Task<bool> Delete(string userId, int bookId, CancellationToken token);
     }
 }

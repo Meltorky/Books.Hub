@@ -1,15 +1,15 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using Books.Hub.Application.Identity;
 
 namespace Books.Hub.Domain.Entities
 {
     public class BookReview
     {
-
-        [Required]
+        [ForeignKey(nameof(User))]
         public string UserId { get; set; } = default!;
 
-        [Required]
+        [ForeignKey(nameof(Book))]
         public int BookId { get; set; }
 
         [Range(1, 10)]
@@ -22,8 +22,8 @@ namespace Books.Hub.Domain.Entities
 
 
         // Navigation properties
-        public ApplicationUser User { get; set; } = null!;
-        public Book Book { get; set; } = new();
+        public ApplicationUser? User { get; set; }
+        public Book? Book { get; set; }
     }
 
 }

@@ -7,6 +7,8 @@ using Books.Hub.Application.Mappers;
 using Books.Hub.Domain.Common;
 using Books.Hub.Domain.Entities;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using System.Net;
 
 namespace Books.Hub.Application.Services
 {
@@ -26,29 +28,37 @@ namespace Books.Hub.Application.Services
         {
             await ValidateUserAndBookExist(dto.UserId , dto.BookId , token);
 
-            var newReview = await _unitOfWork.Reviews.AddAsync(dto.ToBookReview(), token);
+            var review = dto.ToBookReview();
+
+            if (await _unitOfWork.Reviews.FindBookReviewAsync(dto.UserId, dto.BookId, token) is not null)
+                throw new OperationFailedException("User can only add one review for each book");
+
+            var newReview = await _unitOfWork.Reviews.AddAsync(dto.ToBookReview(), token)
+                ?? throw new OperationFailedException("Failed");
 
             return newReview.ToReviewDTO();
         }
 
 
 
-        public async Task<bool> Delete(int Id, CancellationToken token)
+        public async Task<bool> Delete(string userId,int bookId, CancellationToken token)
         {
-            var review = await _unitOfWork.Reviews.GetById(Id , token)
-                ?? throw new NotFoundException($"No Review exist with id: {Id}");
+            await ValidateUserAndBookExist(userId,bookId, token);
+
+            var review = await _unitOfWork.Reviews.FindBookReviewAsync(userId, bookId, token)
+                ?? throw new NotFoundException($"No Review exist !!");
 
             return await _unitOfWork.Reviews.DeleteAsync(review , token);
         }
 
 
 
-        public async Task<ReviewDTO> EditReview(int Id, AddReviewDTO dto, CancellationToken token)
+        public async Task<ReviewDTO> EditReview(string userId,int bookId, AddReviewDTO dto, CancellationToken token)
         {
             await ValidateUserAndBookExist(dto.UserId, dto.BookId, token);
 
-            var review = await _unitOfWork.Reviews.GetById(Id, token)
-                ??throw new NotFoundException($"No Review exist with id: {Id}");
+            var review = await _unitOfWork.Reviews.FindBookReviewAsync(userId, bookId, token)
+                ?? throw new NotFoundException($"No Review exist !!");
 
             review.Rating = dto.Rating;
             review.Comment = dto.Comment;
@@ -91,12 +101,10 @@ namespace Books.Hub.Application.Services
 
 
 
-        public async Task<ReviewDTO> GetById(int Id, CancellationToken token)
+        public async Task<ReviewDTO> GetById(string userId,int bookId, CancellationToken token)
         {
-            var review = await _unitOfWork.Reviews.GetById(Id, token);
-
-            if (review == null)
-                throw new NotFoundException($"No ReviewExist with ID: {Id}");
+            var review = await _unitOfWork.Reviews.FindBookReviewAsync(userId,bookId, token)
+                ?? throw new NotFoundException("");
 
             return review.ToReviewDTO();
         }

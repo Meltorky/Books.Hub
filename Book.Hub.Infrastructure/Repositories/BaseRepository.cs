@@ -95,12 +95,14 @@ namespace Books.Hub.Infrastructure.Repositories
             IQueryable<TEntity> query = _context.Set<TEntity>();
 
             // Apply filtering
-            foreach (var criteria in spec.Criteria)
-                query = query.Where(criteria);
+            if (spec.Criteria.Any())
+                foreach (var criteria in spec.Criteria)
+                    query = query.Where(criteria);
 
             // Apply .Include().ThenInclude() chains
-            foreach (var include in spec.Includes)
-                query = include(query);
+            if(spec.Includes.Any())
+                foreach (var include in spec.Includes)
+                    query = include(query);
 
             // Apply sorting
             if (spec.OrderBy != null)
@@ -111,8 +113,8 @@ namespace Books.Hub.Infrastructure.Repositories
             }
 
             // Apply pagination
-            query = query.Skip(spec.Skip);
-            query = query.Take(spec.Take);
+            //query = query.Skip(spec.Skip);
+            //query = query.Take(spec.Take);
 
             return await query.AsNoTracking().ToListAsync(token);
         }
@@ -187,7 +189,7 @@ namespace Books.Hub.Infrastructure.Repositories
 
             if (includeExpressions.Any())
                 foreach (var includeExpression in includeExpressions)
-                    query.Include(includeExpression);
+                    query = query.Include(includeExpression);
 
             return await query.ToListAsync(token);
         }

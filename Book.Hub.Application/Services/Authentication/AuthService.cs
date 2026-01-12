@@ -72,6 +72,7 @@ namespace Books.Hub.Application.Services.Authentication
                 Email = dto.Email,
                 FirstName = user.FirstName,
                 LastName = user.LastName,
+                UserName = user.UserName!,
                 RoleName = string.Join('|',await _userManager.GetRolesAsync(user)),
             };
 
@@ -96,7 +97,16 @@ namespace Books.Hub.Application.Services.Authentication
             user.RefreshTokens!.Add(GenerateRefreshToken());
             await _userManager.UpdateAsync(user);
 
-            return await _tokenService.CreateTokenAsync(user , new RegisterResultDTO());
+            var registerResultDTO = new RegisterResultDTO()
+            {
+                Email = user.Email!,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                UserName = user.UserName!,
+                RoleName = string.Join('|', await _userManager.GetRolesAsync(user)),
+            };
+
+            return await _tokenService.CreateTokenAsync(user, registerResultDTO);
         }
 
 

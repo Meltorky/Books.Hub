@@ -25,7 +25,7 @@ namespace Books.Hub.Api.Controllers
         [HttpGet("all")]
         public async Task<IActionResult> GetAllAsync(CancellationToken token)
         {
-            var categories = await _categoryService.GetAllAsync(new QuerySpecification<Category>(),token);
+            var categories = await _categoryService.GetAllAsync(token);
             return Ok(categories);
         }
 

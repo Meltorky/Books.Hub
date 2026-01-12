@@ -38,6 +38,7 @@ namespace Books.Hub.Application.Services.Authentication
             // Create a list of standard claims for the token
             var claims = new List<Claim>
             {
+                new Claim(ClaimTypes.NameIdentifier, user.Id), // User's ID
                 new Claim(JwtRegisteredClaimNames.GivenName, user.UserName!), // User's username
                 new Claim(ClaimTypes.Email, user.Email!), // Email claim (alternative format)
             }

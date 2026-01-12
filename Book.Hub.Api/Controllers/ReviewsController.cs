@@ -23,7 +23,7 @@ namespace Books.Hub.Api.Controllers
         /// <summary>
         /// Adds a new book review.
         /// </summary>
-        [HttpPost]
+        [HttpPost("add")]
         [ProducesResponseType(typeof(ReviewDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<ReviewDTO>> AddReview( [FromBody] AddReviewDTO dto,CancellationToken token)
@@ -37,13 +37,13 @@ namespace Books.Hub.Api.Controllers
         /// <summary>
         /// Deletes a review by its ID.
         /// </summary>
-        [HttpDelete("{id}")]
+        [HttpDelete("delete")]
         [Authorize(Roles = nameof(Roles.Admin))]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> DeleteReview(int id, CancellationToken token)
+        public async Task<IActionResult> DeleteReview([FromQuery]string userId,[FromQuery]int bookId, CancellationToken token)
         {
-            await _reviewService.Delete(id, token);
+            await _reviewService.Delete(userId, bookId, token);
             return NoContent();
         }
 
@@ -52,15 +52,14 @@ namespace Books.Hub.Api.Controllers
         /// <summary>
         /// Updates an existing review by ID.
         /// </summary>
-        [HttpPut("{id}")]
+        [HttpPut("edit")]
         [ProducesResponseType(typeof(ReviewDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> EditReview(
-            int id,
             [FromBody] AddReviewDTO dto,
             CancellationToken token)
         {
-            var result = await _reviewService.EditReview(id, dto, token);
+            var result = await _reviewService.EditReview(dto.UserId,dto.BookId, dto, token);
             return Ok(result);
         }
 
@@ -95,12 +94,12 @@ namespace Books.Hub.Api.Controllers
         /// <summary>
         /// Gets a single review by ID.
         /// </summary>
-        [HttpGet("{id}")]
+        [HttpGet("get-by-id")]
         [ProducesResponseType(typeof(ReviewDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> GetById(int id, CancellationToken token)
+        public async Task<IActionResult> GetById([FromQuery] string userId,[FromQuery] int bookId, CancellationToken token)
         {
-            var result = await _reviewService.GetById(id, token);
+            var result = await _reviewService.GetById(userId,bookId, token);
             return Ok(result);
         }
     }

@@ -37,7 +37,7 @@ namespace Books.Hub.Application.Services
             spec.OrderBy = adv.SortedBy switch
             {
                 "best-seller" => b => b.TotalCopiesSold,
-                "rating" => b => b.Rating,
+                "top-rated" => b => b.Rating,
                 "name" => b => b.Name,
                 "recentley-added" => b => b.PublishedDate,
                 "price" => b => b.Price,
@@ -45,7 +45,7 @@ namespace Books.Hub.Application.Services
             };
 
             if (adv.searchText is not null)
-                spec.AddCriteria(b => b.Name.ToLowerInvariant().Contains(adv.searchText.ToLowerInvariant()));
+                spec.AddCriteria(b => b.Name.Contains(adv.searchText.ToLowerInvariant()));
 
             if (minPrice.HasValue)
                 spec.AddCriteria(b => b.Price >= minPrice.Value);
